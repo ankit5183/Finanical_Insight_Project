@@ -1,0 +1,75 @@
+.wp-container {
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #4e73df, #1cc88a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.wp-card {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 50px 40px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  animation: slideUp 0.8s ease-out;
+}
+
+.wp-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.wp-subtitle {
+  font-size: 1.2rem;
+  color: #f1f1f1;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.wp-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.wp-btn {
+  padding: 12px 35px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.wp-login {
+  background: white;
+  color: #4e73df;
+}
+
+.wp-register {
+  background: #1cc88a;
+  color: white;
+}
+
+.wp-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(50px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
