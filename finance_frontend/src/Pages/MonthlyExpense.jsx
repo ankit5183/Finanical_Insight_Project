@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // ⭐ Backend URL for Render + Localhost fallback
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+const API_URL = process.env.REACT_APP_API_URL;
 
 function MonthlyExpense() {
   const [year, setYear] = useState("");
