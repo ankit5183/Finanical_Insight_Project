@@ -8,7 +8,11 @@ function BudgetPage() {
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
+  // ----------------------------------------------------------
+  // Fetch expense + budget whenever year or month changes
+  // ----------------------------------------------------------
   useEffect(() => {
     if (year && month) {
       fetchMonthlyExpense();
@@ -16,10 +20,13 @@ function BudgetPage() {
     }
   }, [year, month]);
 
+  // ----------------------------------------------------------
+  // Fetch monthly expenses
+  // ----------------------------------------------------------
   const fetchMonthlyExpense = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/expense/monthly?year=${year}&month=${month}`,
+        `${API_URL}/api/expense/monthly?year=${year}&month=${month}`,
         { headers: { Authorization: "Bearer " + token } }
       );
 
@@ -28,15 +35,19 @@ function BudgetPage() {
       const data = await response.json();
       const total = data.reduce((sum, e) => sum + e.amount, 0);
       setMonthlyExpenses(total);
+
     } catch (error) {
       console.error("Expense Error:", error);
     }
   };
 
+  // ----------------------------------------------------------
+  // Fetch budget status
+  // ----------------------------------------------------------
   const fetchBudgetStatus = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/budget/status?year=${year}&month=${month}`,
+        `${API_URL}/api/budget/status?year=${year}&month=${month}`,
         { headers: { Authorization: "Bearer " + token } }
       );
 
@@ -52,17 +63,20 @@ function BudgetPage() {
     }
   };
 
+  // ----------------------------------------------------------
+  // Save new budget
+  // ----------------------------------------------------------
   const saveBudget = async (e) => {
     e.preventDefault();
 
     const payload = {
       year: parseInt(year),
       month: parseInt(month),
-      amount: parseFloat(budgetAmount)
+      amount: parseFloat(budgetAmount),
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/budget/set", {
+      const response = await fetch(`${API_URL}/api/budget/set`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,46 +88,49 @@ function BudgetPage() {
       if (!response.ok) throw new Error();
 
       setMessage("Budget Saved Successfully!");
-
-      await fetchBudgetStatus();
+      fetchBudgetStatus();
 
     } catch (error) {
       setMessage("Error Saving Budget");
     }
   };
 
+  // ----------------------------------------------------------
+  // Update budget
+  // ----------------------------------------------------------
   const updateBudget = async () => {
     const payload = {
       year: parseInt(year),
       month: parseInt(month),
-      amount: parseFloat(budgetAmount)
+      amount: parseFloat(budgetAmount),
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/budget/update", {
+      const response = await fetch(`${API_URL}/api/budget/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + token
+          Authorization: "Bearer " + token,
         },
         body: JSON.stringify(payload),
       });
 
       setMessage(response.ok ? "Updated Successfully!" : "Update Failed");
 
-      if (response.ok) {
-        fetchBudgetStatus();
-      }
+      if (response.ok) fetchBudgetStatus();
 
     } catch (error) {
       setMessage("Update Failed");
     }
   };
 
+  // ----------------------------------------------------------
+  // Delete budget
+  // ----------------------------------------------------------
   const deleteBudget = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/budget/delete?year=${year}&month=${month}`,
+        `${API_URL}/api/budget/delete?year=${year}&month=${month}`,
         { method: "DELETE", headers: { Authorization: "Bearer " + token } }
       );
 
@@ -138,31 +155,52 @@ function BudgetPage() {
       <h2 style={styles.title}>Monthly Budget Planner</h2>
 
       <form onSubmit={saveBudget} style={styles.form}>
-        <input type="number" placeholder="Year" value={year}
+
+        <input
+          type="number"
+          placeholder="Year"
+          value={year}
           onChange={(e) => setYear(e.target.value)}
-          required style={styles.input} />
+          required
+          style={styles.input}
+        />
 
-        <input type="number" placeholder="Month" value={month}
+        <input
+          type="number"
+          placeholder="Month"
+          value={month}
           onChange={(e) => setMonth(e.target.value)}
-          required style={styles.input} />
+          required
+          style={styles.input}
+        />
 
-        <input type="number" placeholder="Budget Amount" value={budgetAmount}
+        <input
+          type="number"
+          placeholder="Budget Amount"
+          value={budgetAmount}
           onChange={(e) => setBudgetAmount(e.target.value)}
-          required style={styles.input} />
+          required
+          style={styles.input}
+        />
 
         <button type="submit" style={styles.button}>Save Budget</button>
 
-        <button type="button"
+        <button
+          type="button"
           style={{ ...styles.button, background: "#f6c23e" }}
-          onClick={updateBudget}>
+          onClick={updateBudget}
+        >
           Edit Budget
         </button>
 
-        <button type="button"
+        <button
+          type="button"
           style={{ ...styles.button, background: "#e74a3b" }}
-          onClick={deleteBudget}>
+          onClick={deleteBudget}
+        >
           Delete Budget
         </button>
+
       </form>
 
       {message && <p style={styles.message}>{message}</p>}
@@ -170,7 +208,13 @@ function BudgetPage() {
       <div style={styles.summaryBox}>
         <h3>Monthly Summary</h3>
         <p><strong>Spent:</strong> ₹{monthlyExpenses}</p>
-        <p><strong>Remaining:</strong> <span style={{ color: exceeded ? "red" : "green" }}>₹{remaining}</span></p>
+        <p>
+          <strong>Remaining:</strong>{" "}
+          <span style={{ color: exceeded ? "red" : "green" }}>
+            ₹{remaining}
+          </span>
+        </p>
+
         {exceeded && <p style={styles.exceedText}>⚠️ Budget Exceeded!</p>}
       </div>
     </div>
@@ -179,7 +223,9 @@ function BudgetPage() {
 
 export default BudgetPage;
 
-// ----------------------- STYLES -----------------------
+// ----------------------------------------------------------
+// STYLES
+// ----------------------------------------------------------
 const styles = {
   container: {
     maxWidth: "600px",
