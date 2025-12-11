@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function WeeklyExpense() {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -14,27 +16,32 @@ function WeeklyExpense() {
   const fetchWeeklyExpenses = async (e) => {
     e.preventDefault();
 
-    const url = `http://localhost:8080/api/expense/weekly?year=${year}&month=${month}&day=${day}`;
+    const url = `${API_URL}/api/expense/weekly?year=${year}&month=${month}&day=${day}`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
-    if (!response.ok) {
-      setMessage("Error fetching weekly expenses");
-      return;
+      if (!response.ok) {
+        setMessage("Error fetching weekly expenses");
+        return;
+      }
+
+      const data = await response.json();
+      setExpenses(data);
+      setMessage("");
+
+      // Calculate total
+      const totalAmount = data.reduce((sum, exp) => sum + exp.amount, 0);
+      setTotal(totalAmount);
+
+    } catch (err) {
+      setMessage("Server Error!");
     }
-
-    const data = await response.json();
-    setExpenses(data);
-    setMessage("");
-
-    // Calculating total
-    const totalAmount = data.reduce((sum, exp) => sum + exp.amount, 0);
-    setTotal(totalAmount);
   };
 
   return (
