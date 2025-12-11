@@ -9,6 +9,9 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+// ⭐ BACKEND URL (Works on Render + Localhost)
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function Dashboard() {
   const [categoryData, setCategoryData] = useState({});
   const [totalExpense, setTotalExpense] = useState(0);
@@ -34,7 +37,7 @@ function Dashboard() {
   const fetchCurrentMonthBudget = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/budget/current",
+        `${API_URL}/api/budget/current`,
         {
           headers: {
             Authorization: "Bearer " + token
@@ -46,7 +49,6 @@ function Dashboard() {
 
       const data = await response.json();
 
-      // Backend fields: amount, spentAmount
       setBudgetStatus({
         totalBudget: data.totalBudget,
         totalSpent: data.totalSpent,
@@ -58,11 +60,11 @@ function Dashboard() {
     }
   };
 
-  // Fetch Category Summary
+  // ⭐ Fetch Category Summary
   const fetchCategorySummary = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/dashboard/category-summary",
+        `${API_URL}/api/dashboard/category-summary`,
         {
           headers: {
             Authorization: "Bearer " + token
@@ -86,11 +88,11 @@ function Dashboard() {
     }
   };
 
-  // Total Expense
+  // ⭐ Total Expense
   const fetchTotalExpense = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/dashboard/total-expense",
+        `${API_URL}/api/dashboard/total-expense`,
         {
           headers: {
             Authorization: "Bearer " + token
@@ -145,7 +147,7 @@ function Dashboard() {
 
       {/* Category Pie Chart */}
       <div style={styles.card}>
-      <h2>Category Wise Expense</h2>
+        <h2>Category Wise Expense</h2>
         {Object.keys(categoryData).length > 0 ? (
           <Pie data={pieData} />
         ) : (
