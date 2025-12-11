@@ -10,11 +10,17 @@ function WeeklyExpense() {
   const [total, setTotal] = useState(0);
   const [message, setMessage] = useState("");
 
-  const token = localStorage.getItem("token");
-
   // Fetch weekly expenses
   const fetchWeeklyExpenses = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    // Defensive check: Ensure user is authenticated
+    if (!token) {
+      setMessage("Authentication required. Please log in.");
+      return;
+    }
 
     const url = `${API_URL}/api/expense/weekly?year=${year}&month=${month}&day=${day}`;
 
@@ -23,11 +29,17 @@ function WeeklyExpense() {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
+          "Content-Type": "application/json", // Added for clarity, though not strictly needed for GET
         },
       });
 
       if (!response.ok) {
-        setMessage("Error fetching weekly expenses");
+        // Handle specific HTTP errors (e.g., 404, 403)
+        const errorText = response.status === 401 
+          ? "Unauthorized: Invalid or expired token." 
+          : "Error fetching weekly expenses.";
+
+        setMessage(errorText);
         return;
       }
 
@@ -40,7 +52,9 @@ function WeeklyExpense() {
       setTotal(totalAmount);
 
     } catch (err) {
-      setMessage("Server Error!");
+      // This catches network errors (e.g., API_URL is incorrect or server is down)
+      setMessage("Server Error! Check API URL and network connection.");
+      console.error("Fetch error:", err);
     }
   };
 
@@ -49,6 +63,7 @@ function WeeklyExpense() {
       <h2 style={styles.title}>Weekly Expense Report</h2>
 
       <form onSubmit={fetchWeeklyExpenses} style={styles.form}>
+        {/* ... (Input fields remain the same) ... */}
         <input
           type="number"
           placeholder="Year (e.g., 2025)"
@@ -89,9 +104,15 @@ function WeeklyExpense() {
         {expenses.length > 0 ? (
           expenses.map((exp) => (
             <div key={exp.id} style={styles.card}>
-              <p><strong>Date:</strong> {exp.date}</p>
-              <p><strong>Category:</strong> {exp.category}</p>
-              <p><strong>Amount:</strong> ₹{exp.amount}</p>
+              <p>
+                <strong>Date:</strong> {exp.date}
+              </p>
+              <p>
+                <strong>Category:</strong> {exp.category}
+              </p>
+              <p>
+                <strong>Amount:</strong> ₹{exp.amount}
+              </p>
             </div>
           ))
         ) : (
@@ -138,6 +159,7 @@ const styles = {
     fontSize: "18px",
     border: "none",
     cursor: "pointer",
+    transition: "background-color 0.3s",
   },
   list: {
     marginTop: "20px",
@@ -147,6 +169,7 @@ const styles = {
     marginBottom: "12px",
     borderRadius: "6px",
     background: "#f8f9fc",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
   },
   total: {
     textAlign: "center",
@@ -156,8 +179,11 @@ const styles = {
     color: "#1cc88a",
   },
   error: {
-    color: "red",
+    color: "#e74a3b", // Red for errors
     textAlign: "center",
     marginTop: "10px",
+    padding: "10px",
+    backgroundColor: "#fbeaea",
+    borderRadius: "4px",
   },
 };
