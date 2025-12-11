@@ -6,7 +6,7 @@ function CSVUpload() {
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+  const API_URL = process.env.REACT_APP_API_URL;
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
