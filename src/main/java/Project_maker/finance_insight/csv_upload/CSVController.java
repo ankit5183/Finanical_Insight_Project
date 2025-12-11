@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/csv")
-@CrossOrigin(origins = "http://localhost:3000")
 public class CSVController {
 
     private final CSVService csvService;
