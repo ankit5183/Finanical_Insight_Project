@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// ⭐ Backend URL (Render + Localhost support)
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function Login() {
   const navigate = useNavigate();
 
@@ -22,7 +25,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8080/api/users/login", {
+      const response = await fetch(`${API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
@@ -40,7 +43,7 @@ function Login() {
         setErrorMessage("Invalid email or password!");
       }
     } catch (error) {
-      setErrorMessage("Server Error!");
+      setErrorMessage("Server Error! Please try again later.");
     }
   };
 
