@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios";
+
 function AddExpense() {
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
@@ -7,43 +9,40 @@ function AddExpense() {
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
+
+  // Correct Render backend URL
   const API_URL = process.env.REACT_APP_API_URL;
-  axios.get(`${API_URL}/api/expense/add`);
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
 
     // Convert yyyy-mm-dd → dd-MM-yyyy
-     const formatToDDMMYYYY = (date) => {
-       const d = new Date(date);
-       const day = String(d.getDate()).padStart(2, "0");
-       const month = String(d.getMonth() + 1).padStart(2, "0");
-       const year = d.getFullYear();
-       return `${day}-${month}-${year}`;
-     };
-
+    const formatToDDMMYYYY = (date) => {
+      const d = new Date(date);
+      const day = String(d.getDate()).padStart(2, "0");
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
 
     const expense = {
       amount: parseFloat(amount),
       title: title,
       category: category,
       date: formatToDDMMYYYY(date),
-        // <-- FIXED
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/expense/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify(expense),
-      });
-
-      if (!response.ok) {
-        throw new Error("HTTP Status: " + response.status);
-      }
+      const response = await axios.post(
+        `${API_URL}/api/expense/add`,
+        expense,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
 
       setMessage("Expense added successfully!");
       setAmount("");
@@ -62,14 +61,16 @@ function AddExpense() {
       <h2 style={styles.title}>Add Expense</h2>
 
       <form onSubmit={handleAddExpense} style={styles.form}>
-            <input
-                    type="number"
-                    placeholder="Amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                    style={styles.input}
-                  />
+        
+        <input
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+          style={styles.input}
+        />
+
         <input
           type="text"
           placeholder="Title"
@@ -113,7 +114,6 @@ function AddExpense() {
 }
 
 export default AddExpense;
-
 
 // -------------------- STYLES --------------------
 
