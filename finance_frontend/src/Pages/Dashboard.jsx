@@ -10,7 +10,7 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 // ⭐ BACKEND URL (Works on Render + Localhost)
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+const API_URL = process.env.REACT_APP_API_URL;
 
 function Dashboard() {
   const [categoryData, setCategoryData] = useState({});
