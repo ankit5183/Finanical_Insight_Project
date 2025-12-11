@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 function AddExpense() {
   const [amount, setAmount] = useState("");
   const [title, setTitle] = useState("");
@@ -8,6 +7,8 @@ function AddExpense() {
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
+  const API_URL = process.env.REACT_APP_API_URL;
+  axios.get(`${API_URL}/api/expense/add`);
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
