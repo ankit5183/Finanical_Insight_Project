@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-
+import axios from "axios";
+import { API_URL } from "../config";   // correct import
 
 function AddExpense() {
   const [amount, setAmount] = useState("");
@@ -9,9 +10,6 @@ function AddExpense() {
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
-
-  // Correct Render backend URL
-  const API_URL = process.env.REACT_APP_API_URL;
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
