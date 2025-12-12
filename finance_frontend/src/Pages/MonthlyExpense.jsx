@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { API_URL } from "../config";
 
-// ⭐ Backend URL for Render + Localhost fallback
-const API_URL = process.env.REACT_APP_API_URL;
 
 function MonthlyExpense() {
   const [year, setYear] = useState("");
@@ -19,7 +19,7 @@ function MonthlyExpense() {
     const url = `${API_URL}/api/expense/monthly?year=${year}&month=${month}`;
 
     try {
-      const response = await fetch(url, {
+      const response = await axios.get(url, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
