@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API_URL } from "../config";
 
 function BudgetPage() {
   const [year, setYear] = useState("");
@@ -8,11 +10,8 @@ function BudgetPage() {
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
-  const API_URL = process.env.REACT_APP_API_URL;
 
-  // ----------------------------------------------------------
-  // Fetch expense + budget whenever year or month changes
-  // ----------------------------------------------------------
+  // Load data whenever year/month changes
   useEffect(() => {
     if (year && month) {
       fetchMonthlyExpense();
@@ -20,41 +19,36 @@ function BudgetPage() {
     }
   }, [year, month]);
 
-  // ----------------------------------------------------------
+  // -----------------------------
   // Fetch monthly expenses
-  // ----------------------------------------------------------
+  // -----------------------------
   const fetchMonthlyExpense = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `${API_URL}/api/expense/monthly?year=${year}&month=${month}`,
+        {},
         { headers: { Authorization: "Bearer " + token } }
       );
 
-      if (!response.ok) return;
-
-      const data = await response.json();
-      const total = data.reduce((sum, e) => sum + e.amount, 0);
+      const total = response.data.reduce((sum, e) => sum + e.amount, 0);
       setMonthlyExpenses(total);
 
     } catch (error) {
-      console.error("Expense Error:", error);
+      console.error("Monthly Expense Error:", error);
     }
   };
 
-  // ----------------------------------------------------------
+  // -----------------------------
   // Fetch budget status
-  // ----------------------------------------------------------
+  // -----------------------------
   const fetchBudgetStatus = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `${API_URL}/api/budget/status?year=${year}&month=${month}`,
         { headers: { Authorization: "Bearer " + token } }
       );
 
-      if (!response.ok) return;
-
-      const result = await response.json();
-
+      const result = response.data;
       setBudgetAmount(result.budgetAmount || "");
       setMonthlyExpenses(result.spent || 0);
 
@@ -63,9 +57,9 @@ function BudgetPage() {
     }
   };
 
-  // ----------------------------------------------------------
-  // Save new budget
-  // ----------------------------------------------------------
+  // -----------------------------
+  // Save budget
+  // -----------------------------
   const saveBudget = async (e) => {
     e.preventDefault();
 
@@ -76,16 +70,11 @@ function BudgetPage() {
     };
 
     try {
-      const response = await fetch(`${API_URL}/api/budget/set`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error();
+      await axios.post(
+        `${API_URL}/api/budget/set`,
+        payload,
+        { headers: { Authorization: "Bearer " + token } }
+      );
 
       setMessage("Budget Saved Successfully!");
       fetchBudgetStatus();
@@ -95,9 +84,9 @@ function BudgetPage() {
     }
   };
 
-  // ----------------------------------------------------------
-  // Update budget
-  // ----------------------------------------------------------
+  // -----------------------------
+  // Update Budget
+  // -----------------------------
   const updateBudget = async () => {
     const payload = {
       year: parseInt(year),
@@ -106,41 +95,33 @@ function BudgetPage() {
     };
 
     try {
-      const response = await fetch(`${API_URL}/api/budget/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify(payload),
-      });
+      await axios.put(
+        `${API_URL}/api/budget/update`,
+        payload,
+        { headers: { Authorization: "Bearer " + token } }
+      );
 
-      setMessage(response.ok ? "Updated Successfully!" : "Update Failed");
-
-      if (response.ok) fetchBudgetStatus();
+      setMessage("Updated Successfully!");
+      fetchBudgetStatus();
 
     } catch (error) {
       setMessage("Update Failed");
     }
   };
 
-  // ----------------------------------------------------------
-  // Delete budget
-  // ----------------------------------------------------------
+  // -----------------------------
+  // Delete Budget
+  // -----------------------------
   const deleteBudget = async () => {
     try {
-      const response = await fetch(
+      await axios.delete(
         `${API_URL}/api/budget/delete?year=${year}&month=${month}`,
-        { method: "DELETE", headers: { Authorization: "Bearer " + token } }
+        { headers: { Authorization: "Bearer " + token } }
       );
 
-      if (response.ok) {
-        setMessage("Budget Deleted!");
-        setBudgetAmount("");
-        setMonthlyExpenses(0);
-      } else {
-        setMessage("Delete Failed!");
-      }
+      setMessage("Budget Deleted!");
+      setBudgetAmount("");
+      setMonthlyExpenses(0);
 
     } catch (error) {
       setMessage("Delete Failed!");
@@ -223,9 +204,7 @@ function BudgetPage() {
 
 export default BudgetPage;
 
-// ----------------------------------------------------------
-// STYLES
-// ----------------------------------------------------------
+// -------------------- STYLES --------------------
 const styles = {
   container: {
     maxWidth: "600px",
