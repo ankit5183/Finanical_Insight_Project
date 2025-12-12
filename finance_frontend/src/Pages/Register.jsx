@@ -25,20 +25,19 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`,formData {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
+      // ---- Correct axios request ----
+      const response = await axios.post(
+        `${API_URL}/api/users/register`,
+        formData
+      );
 
-      if (response.ok) {
-        setMessage("Registration successful! Redirecting to login...");
-        setTimeout(() => navigate("/login"), 1500);
-      } else {
-        setMessage("Error: Registration failed!");
-      }
+      // If backend sends success
+      setMessage("Registration successful! Redirecting to login...");
+
+      setTimeout(() => navigate("/login"), 1500);
+
     } catch (error) {
-      setMessage("Server Error!");
+      setMessage("Registration failed! Email may already exist.");
     }
   };
 
@@ -47,7 +46,6 @@ function Register() {
       <h2 style={styles.title}>Create Account</h2>
 
       <form style={styles.form} onSubmit={handleSubmit}>
-
         <input
           style={styles.input}
           type="text"
@@ -95,6 +93,7 @@ function Register() {
   );
 }
 
+// ------------------ Styles ------------------
 const styles = {
   container: {
     height: "100vh",
