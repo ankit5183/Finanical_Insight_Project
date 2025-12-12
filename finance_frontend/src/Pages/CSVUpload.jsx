@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-
+import axios from "axios";
+import { API_URL } from "../config";
 
 function CSVUpload() {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
-  const API_URL = process.env.REACT_APP_API_URL;
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -29,7 +29,7 @@ function CSVUpload() {
         formData,
         {
           headers: {
-            Authorization: "Bearer " + token,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -37,7 +37,6 @@ function CSVUpload() {
 
       setMessage("CSV uploaded successfully!");
       setFile(null);
-
     } catch (error) {
       console.error("CSV Upload Error:", error);
       setMessage("Failed to upload CSV!");
@@ -50,7 +49,6 @@ function CSVUpload() {
 
       <form onSubmit={uploadCSV} style={styles.form}>
         <input type="file" accept=".csv" onChange={handleFileChange} />
-
         <button type="submit">Upload CSV</button>
       </form>
 
@@ -58,5 +56,23 @@ function CSVUpload() {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    padding: "20px",
+    maxWidth: "500px",
+    margin: "auto",
+    textAlign: "center",
+  },
+  title: {
+    marginBottom: "20px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    alignItems: "center",
+  },
+};
 
 export default CSVUpload;
