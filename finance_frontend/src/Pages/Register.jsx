@@ -25,7 +25,7 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`, {
+      const response = await axios.post(`${API_URL}/api/users/register`,formData {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
