@@ -24,7 +24,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/login`, {
+      const response = await axios.post(`${API_URL}/api/users/login`, loginData {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
