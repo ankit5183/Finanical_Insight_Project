@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { API_URL } from "../config";   // correct import
+import { API_URL } from "../Config";   // correct import
 
 function AddExpense() {
   const [amount, setAmount] = useState("");
