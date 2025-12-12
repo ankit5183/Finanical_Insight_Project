@@ -8,7 +8,7 @@ function Login() {
 
   const [loginData, setLoginData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -16,7 +16,7 @@ function Login() {
   const handleChange = (e) => {
     setLoginData({
       ...loginData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -24,25 +24,19 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/login`, loginData {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
+      // ---- Correct axios request ----
+      const response = await axios.post(
+        `${API_URL}/api/users/login`,
+        loginData
+      );
 
-      if (response.ok) {
-        const data = await response.json();
+      // Save JWT Token
+      localStorage.setItem("token", response.data.token);
 
-        // Save JWT Token
-        localStorage.setItem("token", data.token);
-
-        // Redirect to Dashboard
-        navigate("/dashboard");
-      } else {
-        setErrorMessage("Invalid email or password!");
-      }
+      // Navigate to dashboard
+      navigate("/dashboard");
     } catch (error) {
-      setErrorMessage("Server Error! Please try again later.");
+      setErrorMessage("Invalid email or password!");
     }
   };
 
@@ -88,6 +82,7 @@ function Login() {
   );
 }
 
+// ------------------ Styles ------------------
 const styles = {
   container: {
     height: "100vh",
