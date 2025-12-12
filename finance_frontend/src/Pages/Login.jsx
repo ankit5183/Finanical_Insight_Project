@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// ⭐ Backend URL (Render + Localhost support)
-const API_URL = process.env.REACT_APP_API_URL;
+import axios from "axios";
+import { API_URL } from "../config";
 
 function Login() {
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/api/users/login`, {
+      const response = await axios.get(`${API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
