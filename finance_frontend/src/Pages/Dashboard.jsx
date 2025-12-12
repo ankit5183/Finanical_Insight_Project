@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { API_URL } from "../config";
+
 import { Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,14 +12,10 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// ⭐ BACKEND URL (Works on Render + Localhost)
-const API_URL = process.env.REACT_APP_API_URL;
-
 function Dashboard() {
   const [categoryData, setCategoryData] = useState({});
   const [totalExpense, setTotalExpense] = useState(0);
 
-  // ⭐ Current Month Budget Data
   const [budgetStatus, setBudgetStatus] = useState({
     totalBudget: 0,
     totalSpent: 0,
@@ -30,83 +29,59 @@ function Dashboard() {
 
     fetchCategorySummary();
     fetchTotalExpense();
-    fetchCurrentMonthBudget();  // ⭐ Correct API call
+    fetchCurrentMonthBudget();
   }, []);
 
-  // ⭐ Fetch CURRENT MONTH Budget Status
+  // ⭐ Fetch CURRENT MONTH Budget
   const fetchCurrentMonthBudget = async () => {
     try {
-      const response = await fetch(
-        `${API_URL}/api/budget/current`,
-        {
-          headers: {
-            Authorization: "Bearer " + token
-          }
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to load budget");
-
-      const data = await response.json();
-
-      setBudgetStatus({
-        totalBudget: data.totalBudget,
-        totalSpent: data.totalSpent,
-        remaining: data.remaining
+      const response = await axios.get(`${API_URL}/api/budget/current`, {
+        headers: { Authorization: "Bearer " + token }
       });
 
-    } catch (error) {
-      console.error("Budget Status Error:", error);
+      setBudgetStatus({
+        totalBudget: response.data.totalBudget,
+        totalSpent: response.data.totalSpent,
+        remaining: response.data.remaining
+      });
+
+    } catch (err) {
+      console.error("Budget Status Error:", err);
     }
   };
 
-  // ⭐ Fetch Category Summary
+  // ⭐ Fetch Category Wise Expense
   const fetchCategorySummary = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `${API_URL}/api/dashboard/category-summary`,
-        {
-          headers: {
-            Authorization: "Bearer " + token
-          }
-        }
+        { headers: { Authorization: "Bearer " + token } }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch");
-
-      const data = await response.json();
-
       const formatted = {};
-      data.forEach(([category, amount]) => {
+      response.data.forEach(([category, amount]) => {
         formatted[category] = amount;
       });
 
       setCategoryData(formatted);
 
-    } catch (error) {
-      console.error("Category Summary Error:", error);
+    } catch (err) {
+      console.error("Category Summary Error:", err);
     }
   };
 
-  // ⭐ Total Expense
+  // ⭐ Fetch Total Expense
   const fetchTotalExpense = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `${API_URL}/api/dashboard/total-expense`,
-        {
-          headers: {
-            Authorization: "Bearer " + token
-          }
-        }
+        { headers: { Authorization: "Bearer " + token } }
       );
 
-      if (!response.ok) throw new Error("Failed");
+      setTotalExpense(response.data);
 
-      const total = await response.json();
-      setTotalExpense(total);
-
-    } catch (error) {
-      console.error("Total Expense Error:", error);
+    } catch (err) {
+      console.error("Total Expense Error:", err);
     }
   };
 
@@ -131,7 +106,7 @@ function Dashboard() {
     <div style={styles.container}>
       <h1 style={styles.title}>Dashboard</h1>
 
-      {/* ⭐ Current Month Budget Card */}
+      {/* ⭐ Current Month Budget */}
       <div style={styles.card}>
         <h2 style={{ color: "#4e73df" }}>Current Month Budget</h2>
         <p><strong>Total Budget:</strong> ₹ {budgetStatus.totalBudget}</p>
@@ -139,13 +114,13 @@ function Dashboard() {
         <p><strong>Remaining:</strong> ₹ {budgetStatus.remaining}</p>
       </div>
 
-      {/* Total Expense */}
+      {/* ⭐ Total Expense */}
       <div style={styles.card}>
         <h2>Total Expense</h2>
         <p style={styles.total}>₹ {totalExpense.toFixed(2)}</p>
       </div>
 
-      {/* Category Pie Chart */}
+      {/* ⭐ Category Pie Chart */}
       <div style={styles.card}>
         <h2>Category Wise Expense</h2>
         {Object.keys(categoryData).length > 0 ? (
@@ -154,12 +129,11 @@ function Dashboard() {
           <p>No Data Available</p>
         )}
       </div>
-
     </div>
   );
 }
 
-// Styles
+// ------------------- Styles -------------------
 const styles = {
   container: {
     padding: "40px",
