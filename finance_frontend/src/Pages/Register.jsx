@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axios from "axios";
+import { API_URL } from "../config";
 
 function Register() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/api/users/register`, {
+      const response = await axios.post(`${API_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
