@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../Config";
 
-
 function MonthlyExpense() {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -12,7 +11,6 @@ function MonthlyExpense() {
 
   const token = localStorage.getItem("token");
 
-  // Fetch monthly expenses
   const fetchMonthlyExpenses = async (e) => {
     e.preventDefault();
 
@@ -20,18 +18,13 @@ function MonthlyExpense() {
 
     try {
       const response = await axios.get(url, {
-        method: "GET",
         headers: {
           Authorization: "Bearer " + token,
         },
       });
 
-      if (!response.ok) {
-        setMessage("Error fetching monthly expenses");
-        return;
-      }
+      const data = response.data;
 
-      const data = await response.json();
       setExpenses(data);
       setMessage("");
 
@@ -40,7 +33,7 @@ function MonthlyExpense() {
       setTotal(totalAmount);
 
     } catch (error) {
-      setMessage("Server error! Please try again.");
+      setMessage("Error fetching monthly expenses");
     }
   };
 
@@ -94,6 +87,7 @@ function MonthlyExpense() {
 }
 
 export default MonthlyExpense;
+
 
 // ---------------------------- STYLES ----------------------------
 const styles = {
