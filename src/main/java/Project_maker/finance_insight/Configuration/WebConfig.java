@@ -16,8 +16,7 @@ public class WebConfig {
 
                 registry.addMapping("/**")
                         .allowedOrigins(  // Local frontend
-                                "https://finanical-insight-project.onrender.com" // Your Render frontend URL
-                        )
+                               https://finanical-insight-project.onrender.com // Your Render frontend URL )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization")
