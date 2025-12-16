@@ -25,7 +25,7 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(request -> null)) // Use WebConfig CORS
+                .cors(cors -> cors -> {}) // Use WebConfig CORS
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/users/login",
