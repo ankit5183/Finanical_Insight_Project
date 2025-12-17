@@ -26,22 +26,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Disable CSRF for JWT-based authentication
+            // 1. Disable CSRF for JWT-based APIs
             .csrf(csrf -> csrf.disable())
             
-            // 2. Enable CORS and tell it to use the configuration from your WebConfig bean
+            // 2. Enable CORS (Uses your WebConfig settings)
             .cors(Customizer.withDefaults())
             
-            // 3. Set session management to STATELESS (no cookies/sessions)
+            // 3. Set session management to STATELESS
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             // 4. Configure endpoint permissions
             .authorizeHttpRequests(auth -> auth
+                // Allow Registration and Login
                 .requestMatchers("/api/users/login", "/api/users/register").permitAll()
+                
+                // CRITICAL: Permit the root path for Render's Health Check
+                .requestMatchers("/").permitAll() 
+                
+                // Protect everything else
                 .anyRequest().authenticated()
             )
             
-            // 5. Add JWT Filter before the standard Username/Password filter
+            // 5. Add JWT Filter
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
