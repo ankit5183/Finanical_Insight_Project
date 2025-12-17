@@ -4,14 +4,17 @@ import Project_maker.finance_insight.Authorisation.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -23,19 +26,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // 1. Disable CSRF for JWT-based authentication
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> {}) // ✅ Correctly closed, uses WebConfig CORS
+            
+            // 2. Enable CORS and tell it to use the configuration from your WebConfig bean
+            .cors(Customizer.withDefaults())
+            
+            // 3. Set session management to STATELESS (no cookies/sessions)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            // 4. Configure endpoint permissions
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/users/login",
-                    "/api/users/register",
-                    "/h2-console/**"
-                ).permitAll()
+                .requestMatchers("/api/users/login", "/api/users/register").permitAll()
                 .anyRequest().authenticated()
             )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+            
+            // 5. Add JWT Filter before the standard Username/Password filter
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -45,7 +52,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Optional: expose AuthenticationManager if you need it elsewhere
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
