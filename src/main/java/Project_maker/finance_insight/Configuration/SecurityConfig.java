@@ -22,21 +22,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {} // Use WebConfig CORS
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/users/login",
-                                "/api/users/register",
-                                "/h2-console/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {}) // ✅ Correctly closed, uses WebConfig CORS
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/users/login",
+                    "/api/users/register",
+                    "/h2-console/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
@@ -44,5 +43,11 @@ public class SecurityConfig {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // Optional: expose AuthenticationManager if you need it elsewhere
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 }
