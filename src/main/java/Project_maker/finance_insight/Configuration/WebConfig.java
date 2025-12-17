@@ -13,10 +13,10 @@ public class WebConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-
                 registry.addMapping("/**")
-                        .allowedOrigins(  // Local frontend
-                               https://finanical-insight-project.onrender.com // Your Render frontend URL )
+                        .allowedOrigins(
+                                "https://financial-insight-project.onrender.com" // Deployed Render frontend
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization")
