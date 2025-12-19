@@ -6,6 +6,9 @@ import { API_URL } from "../Config";
 function Register() {
   const navigate = useNavigate();
 
+  // ✅ Log API URL when component loads
+  console.log("REGISTER API_URL:", API_URL);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,19 +27,27 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // ✅ Log form data before sending
+    console.log("Register formData:", formData);
+    console.log("POST URL:", `${API_URL}/api/users/register`);
+
     try {
-      // ---- Correct axios request ----
       const response = await axios.post(
         `${API_URL}/api/users/register`,
         formData
       );
 
-      // If backend sends success
-      setMessage("Registration successful! Redirecting to login...");
+      // ✅ Log backend response
+      console.log("Register response:", response.data);
 
+      setMessage("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 1500);
 
     } catch (error) {
+      // ✅ Log full error
+      console.error("Register error:", error);
+      console.error("Error response:", error?.response?.data);
+
       setMessage("Registration failed! Email may already exist.");
     }
   };
@@ -92,6 +103,7 @@ function Register() {
     </div>
   );
 }
+
 
 // ------------------ Styles ------------------
 const styles = {
