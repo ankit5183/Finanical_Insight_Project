@@ -31,75 +31,48 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
         http
-            // 1️⃣ Disable CSRF (JWT-based APIs)
             .csrf(csrf -> csrf.disable())
-
-            // 2️⃣ Enable CORS
             .cors(Customizer.withDefaults())
-
-            // 3️⃣ Stateless session
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            // 4️⃣ Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Allow preflight requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // Public APIs
                 .requestMatchers("/api/users/login", "/api/users/register").permitAll()
-
-                // Render health check
                 .requestMatchers("/").permitAll()
-
-                // All other APIs need JWT
                 .anyRequest().authenticated()
             )
-
-            // 5️⃣ JWT filter
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // 🔐 Password encoder
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔐 Authentication manager
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // 🌍 CORS Configuration (REQUIRED for React + Render)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration config = new CorsConfiguration();
-
         config.setAllowedOrigins(List.of(
-            "https://financial-insight-project.onrender.com" // React frontend URL
+            "https://financial-insight-project.onrender.com",
+            "http://localhost:5173",
+            "http://localhost:3000"
         ));
-
-        config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS"
-        ));
-
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 }
