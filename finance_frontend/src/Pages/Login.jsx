@@ -6,6 +6,9 @@ import { API_URL } from "../Config";
 function Login() {
   const navigate = useNavigate();
 
+  // ✅ Log API URL on component load
+  console.log("LOGIN API_URL:", API_URL);
+
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -23,19 +26,32 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // ✅ Log request payload and endpoint
+    console.log("Login formData:", loginData);
+    console.log("POST URL:", `${API_URL}/api/users/login`);
+
     try {
-      // ---- Correct axios request ----
       const response = await axios.post(
         `${API_URL}/api/users/login`,
         loginData
       );
 
+      // ✅ Log backend response
+      console.log("Login response:", response.data);
+
       // Save JWT Token
       localStorage.setItem("token", response.data.token);
+      console.log("JWT stored in localStorage");
 
       // Navigate to dashboard
       navigate("/dashboard");
+
     } catch (error) {
+      // ✅ Detailed error logging
+      console.error("Login error:", error);
+      console.error("Error response:", error?.response?.data);
+      console.error("Status code:", error?.response?.status);
+
       setErrorMessage("Invalid email or password!");
     }
   };
