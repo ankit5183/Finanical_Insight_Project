@@ -1,4 +1,3 @@
-
 package Project_maker.finance_insight.Budget_model;
 
 import Project_maker.finance_insight.Authorisation.JwtService;
@@ -53,12 +52,11 @@ public class BudgetController {
 
         double spent = budgetService.getMonthlySpent(email, year, month);
         double budget = budgetService.getBudget(email, year, month);
-        double remaining = budget - spent;
 
         return ResponseEntity.ok(Map.of(
                 "spent", spent,
                 "budgetAmount", budget,
-                "remaining", remaining
+                "remaining", budget - spent
         ));
     }
 
@@ -80,6 +78,7 @@ public class BudgetController {
         return ResponseEntity.ok(Map.of("message", "Budget Updated Successfully"));
     }
 
+    // ------------------- CURRENT MONTH ------------------
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentMonthBudget(
             @RequestHeader("Authorization") String token) {
@@ -87,20 +86,20 @@ public class BudgetController {
         String email = extractEmail(token);
 
         LocalDate today = LocalDate.now();
-        int month = today.getMonthValue();
-        int year = today.getYear();
 
-        double totalBudget = budgetService.getBudget(email, year, month);
-        double totalSpent = budgetService.getMonthlySpent(email, year, month);
-        double remaining = totalBudget - totalSpent;
+        double totalBudget = budgetService.getBudget(
+                email, today.getYear(), today.getMonthValue()
+        );
+        double totalSpent = budgetService.getMonthlySpent(
+                email, today.getYear(), today.getMonthValue()
+        );
 
         return ResponseEntity.ok(Map.of(
                 "totalBudget", totalBudget,
                 "totalSpent", totalSpent,
-                "remaining", remaining
+                "remaining", totalBudget - totalSpent
         ));
     }
-
 
     // ------------------- DELETE BUDGET ------------------
     @DeleteMapping("/delete")
