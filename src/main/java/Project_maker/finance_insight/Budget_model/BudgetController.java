@@ -84,7 +84,6 @@ public class BudgetController {
             @RequestHeader("Authorization") String token) {
 
         String email = extractEmail(token);
-
         LocalDate today = LocalDate.now();
 
         double totalBudget = budgetService.getBudget(
