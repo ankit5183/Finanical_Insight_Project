@@ -5,126 +5,101 @@ import { API_URL } from "../Config";
 function BudgetPage() {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
-  const [budgetAmount, setBudgetAmount] = useState("");
+  const [budgetAmount, setBudgetAmount] = useState(0);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const [message, setMessage] = useState("");
 
   const token = localStorage.getItem("token");
 
-  // Load data whenever year/month changes
+  // Load data whenever year or month changes
   useEffect(() => {
     if (year && month) {
-      fetchMonthlyExpense();
-      fetchBudgetStatus();
+      fetchMonthlyData();
     }
   }, [year, month]);
 
-  // -----------------------------
-  // Fetch monthly expenses
-  // -----------------------------
+  const fetchMonthlyData = async () => {
+    try {
+      await Promise.all([fetchMonthlyExpense(), fetchBudgetStatus()]);
+    } catch (error) {
+      console.error("Error loading monthly data:", error);
+    }
+  };
+
+  // 1. Fetch monthly expenses (Changed to GET for standard fetching)
   const fetchMonthlyExpense = async () => {
     try {
-      const response = await axios.post(
+      const response = await axios.get(
         `${API_URL}/api/expense/monthly?year=${year}&month=${month}`,
-        {},
-        { headers: { Authorization: "Bearer " + token } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      const total = response.data.reduce((sum, e) => sum + e.amount, 0);
+      
+      const data = Array.isArray(response.data) ? response.data : [];
+      const total = data.reduce((sum, e) => sum + (e.amount || 0), 0);
       setMonthlyExpenses(total);
-
     } catch (error) {
       console.error("Monthly Expense Error:", error);
     }
   };
 
-  // -----------------------------
-  // Fetch budget status
-  // -----------------------------
+  // 2. Fetch budget status
   const fetchBudgetStatus = async () => {
     try {
       const response = await axios.get(
         `${API_URL}/api/budget/status?year=${year}&month=${month}`,
-        { headers: { Authorization: "Bearer " + token } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const result = response.data;
-      setBudgetAmount(result.budgetAmount || "");
-      setMonthlyExpenses(result.spent || 0);
-
+      const { budgetAmount, spent } = response.data;
+      setBudgetAmount(budgetAmount || 0);
+      setMonthlyExpenses(spent || 0);
     } catch (error) {
       console.error("Budget Status Error:", error);
     }
   };
 
-  // -----------------------------
-  // Save budget
-  // -----------------------------
+  // 3. Save budget
   const saveBudget = async (e) => {
     e.preventDefault();
-
-    const payload = {
-      year: parseInt(year),
-      month: parseInt(month),
-      amount: parseFloat(budgetAmount),
-    };
+    const payload = { year: parseInt(year), month: parseInt(month), amount: parseFloat(budgetAmount) };
 
     try {
-      await axios.post(
-        `${API_URL}/api/budget/set`,
-        payload,
-        { headers: { Authorization: "Bearer " + token } }
-      );
-
-      setMessage("Budget Saved Successfully!");
+      await axios.post(`${API_URL}/api/budget/set`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessage("✅ Budget Saved Successfully!");
       fetchBudgetStatus();
-
     } catch (error) {
-      setMessage("Error Saving Budget");
+      setMessage("❌ Error Saving Budget");
     }
   };
 
-  // -----------------------------
-  // Update Budget
-  // -----------------------------
+  // 4. Update Budget
   const updateBudget = async () => {
-    const payload = {
-      year: parseInt(year),
-      month: parseInt(month),
-      amount: parseFloat(budgetAmount),
-    };
+    const payload = { year: parseInt(year), month: parseInt(month), amount: parseFloat(budgetAmount) };
 
     try {
-      await axios.put(
-        `${API_URL}/api/budget/update`,
-        payload,
-        { headers: { Authorization: "Bearer " + token } }
-      );
-
-      setMessage("Updated Successfully!");
+      await axios.put(`${API_URL}/api/budget/update`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessage("✅ Updated Successfully!");
       fetchBudgetStatus();
-
     } catch (error) {
-      setMessage("Update Failed");
+      setMessage("❌ Update Failed");
     }
   };
 
-  // -----------------------------
-  // Delete Budget
-  // -----------------------------
+  // 5. Delete Budget
   const deleteBudget = async () => {
     try {
-      await axios.delete(
-        `${API_URL}/api/budget/delete?year=${year}&month=${month}`,
-        { headers: { Authorization: "Bearer " + token } }
-      );
-
-      setMessage("Budget Deleted!");
-      setBudgetAmount("");
+      await axios.delete(`${API_URL}/api/budget/delete?year=${year}&month=${month}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessage("🗑️ Budget Deleted!");
+      setBudgetAmount(0);
       setMonthlyExpenses(0);
-
     } catch (error) {
-      setMessage("Delete Failed!");
+      setMessage("❌ Delete Failed!");
     }
   };
 
@@ -136,24 +111,24 @@ function BudgetPage() {
       <h2 style={styles.title}>Monthly Budget Planner</h2>
 
       <form onSubmit={saveBudget} style={styles.form}>
-
-        <input
-          type="number"
-          placeholder="Year"
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          required
-          style={styles.input}
-        />
-
-        <input
-          type="number"
-          placeholder="Month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          required
-          style={styles.input}
-        />
+        <div style={styles.row}>
+          <input
+            type="number"
+            placeholder="Year (e.g. 2025)"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="number"
+            placeholder="Month (1-12)"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            required
+            style={styles.input}
+          />
+        </div>
 
         <input
           type="number"
@@ -166,37 +141,29 @@ function BudgetPage() {
 
         <button type="submit" style={styles.button}>Save Budget</button>
 
-        <button
-          type="button"
-          style={{ ...styles.button, background: "#f6c23e" }}
-          onClick={updateBudget}
-        >
-          Edit Budget
-        </button>
-
-        <button
-          type="button"
-          style={{ ...styles.button, background: "#e74a3b" }}
-          onClick={deleteBudget}
-        >
-          Delete Budget
-        </button>
-
+        <div style={styles.buttonGroup}>
+          <button type="button" style={{ ...styles.smallButton, background: "#f6c23e" }} onClick={updateBudget}>
+            Edit
+          </button>
+          <button type="button" style={{ ...styles.smallButton, background: "#e74a3b" }} onClick={deleteBudget}>
+            Delete
+          </button>
+        </div>
       </form>
 
       {message && <p style={styles.message}>{message}</p>}
 
       <div style={styles.summaryBox}>
-        <h3>Monthly Summary</h3>
-        <p><strong>Spent:</strong> ₹{monthlyExpenses}</p>
+        <h3 style={{ margin: "0 0 10px 0" }}>Monthly Summary</h3>
+        <p><strong>Spent:</strong> ₹{monthlyExpenses.toLocaleString()}</p>
         <p>
           <strong>Remaining:</strong>{" "}
-          <span style={{ color: exceeded ? "red" : "green" }}>
-            ₹{remaining}
+          <span style={{ color: exceeded ? "#e74a3b" : "#1cc88a", fontWeight: "bold" }}>
+            ₹{remaining.toLocaleString()}
           </span>
         </p>
 
-        {exceeded && <p style={styles.exceedText}>⚠️ Budget Exceeded!</p>}
+        {exceeded && <p style={styles.exceedText}>⚠️ Warning: Budget Exceeded!</p>}
       </div>
     </div>
   );
@@ -207,53 +174,53 @@ export default BudgetPage;
 // -------------------- STYLES --------------------
 const styles = {
   container: {
-    maxWidth: "600px",
+    maxWidth: "500px",
     margin: "40px auto",
-    padding: "25px",
-    background: "white",
-    borderRadius: "10px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    padding: "30px",
+    background: "#ffffff",
+    borderRadius: "12px",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
-  title: {
-    textAlign: "center",
-    color: "#4e73df",
-    marginBottom: "20px",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
+  title: { textAlign: "center", color: "#4e73df", marginBottom: "25px" },
+  form: { display: "flex", flexDirection: "column", gap: "15px" },
+  row: { display: "flex", gap: "10px" },
   input: {
+    flex: 1,
     padding: "12px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
+    borderRadius: "8px",
+    border: "1px solid #d1d3e2",
     fontSize: "16px",
+    outline: "none",
   },
   button: {
-    padding: "12px",
-    background: "#36b9cc",
+    padding: "14px",
+    background: "#4e73df",
     color: "white",
-    borderRadius: "6px",
-    fontSize: "18px",
+    borderRadius: "8px",
+    fontSize: "16px",
+    fontWeight: "bold",
     border: "none",
     cursor: "pointer",
+    transition: "background 0.3s",
   },
-  message: {
-    marginTop: "10px",
-    textAlign: "center",
-    color: "#1cc88a",
-    fontWeight: "bold",
+  buttonGroup: { display: "flex", gap: "10px" },
+  smallButton: {
+    flex: 1,
+    padding: "10px",
+    color: "white",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
+    fontWeight: "600",
   },
+  message: { marginTop: "15px", textAlign: "center", color: "#4e73df", fontWeight: "600" },
   summaryBox: {
-    marginTop: "25px",
-    padding: "15px",
+    marginTop: "30px",
+    padding: "20px",
     background: "#f8f9fc",
-    borderRadius: "6px",
+    borderRadius: "10px",
+    borderLeft: "5px solid #4e73df",
   },
-  exceedText: {
-    color: "red",
-    fontWeight: "bold",
-    marginTop: "10px",
-  },
+  exceedText: { color: "#e74a3b", fontWeight: "bold", marginTop: "10px", textAlign: "center" },
 };
