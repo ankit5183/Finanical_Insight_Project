@@ -45,13 +45,17 @@ public class BudgetService {
 
     // 🔹 Update existing budget
     public Budget updateMonthlyBudget(String email, int year, int month, double amount) {
-        Budget budget = budgetRepository
-                .findByUserEmailAndYearAndMonth(email, year, month)
-                .orElseThrow(() -> new RuntimeException("Budget not found"));
+    Budget budget = budgetRepository
+            .findByUserEmailAndYearAndMonth(email, year, month)
+            .orElse(new Budget());
 
-        budget.setAmount(amount);
-        return budgetRepository.save(budget);
-    }
+    budget.setUserEmail(email);
+    budget.setYear(year);
+    budget.setMonth(month);
+    budget.setAmount(amount);
+
+    return budgetRepository.save(budget);
+}
 
     // 🔹 Delete a monthly budget
     public void deleteBudget(String email, int year, int month) {
