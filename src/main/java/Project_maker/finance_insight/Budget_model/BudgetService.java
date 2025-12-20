@@ -39,7 +39,8 @@ public class BudgetService {
 
     // 🔹 Total money spent in the month
     public double getMonthlySpent(String email, int year, int month) {
-        return expenseRepository.sumMonthlyExpense(email, month, year);
+        Double spent = expenseRepository.sumMonthlyExpense(email, month, year);
+        return spent != null ? spent : 0.0;
     }
 
     // 🔹 Update existing budget
