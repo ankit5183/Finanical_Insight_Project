@@ -29,7 +29,7 @@ public class Expense {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String userEmail;
 
 }
