@@ -11,133 +11,185 @@ function BudgetPage() {
 
   const token = localStorage.getItem("token");
 
-  /* -------------------- SET CURRENT DATE ON LOAD -------------------- */
   useEffect(() => {
-    const now = new Date();
-    setYear(now.getFullYear());
-    setMonth(now.getMonth() + 1);
-  }, []);
-
-  /* -------------------- FETCH BUDGET STATUS (MANUAL SEARCH) -------------------- */
-  const handleSearch = async () => {
-    if (!year || !month) {
-      setMessage("⚠️ Please enter both Year and Month");
-      return;
+    if (year && month) {
+      fetchMonthlyExpense();
+      fetchBudgetStatus();
     }
+  }, [year, month]);
 
+  /* -------------------- FETCH MONTHLY EXPENSE -------------------- */
+  const fetchMonthlyExpense = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/budget/status`, {
-        params: { year, month },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${API_URL}/api/expense/monthly`,
+        {
+          params: { year, month },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      // Update the states with found data or defaults
+      const total = response.data.reduce(
+        (sum, e) => sum + e.amount,
+        0
+      );
+
+      setMonthlyExpenses(total);
+    } catch (error) {
+      console.error("Expense Error:", error);
+    }
+  };
+
+  /* -------------------- FETCH BUDGET STATUS -------------------- */
+  const fetchBudgetStatus = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/budget/status`,
+        {
+          params: { year, month },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       setBudgetAmount(response.data.budgetAmount || "");
       setMonthlyExpenses(response.data.spent || 0);
-      setMessage("🔍 Data fetched for " + month + "/" + year);
+
     } catch (error) {
-      console.error("Search Error:", error);
-      setMessage("❌ Could not find data for this period");
+      console.error("Budget Status Error:", error);
     }
   };
 
-  /* -------------------- SAVE / UPDATE / DELETE ACTIONS -------------------- */
+  /* -------------------- SAVE BUDGET -------------------- */
   const saveBudget = async (e) => {
     e.preventDefault();
-    const payload = { year: Number(year), month: Number(month), amount: Number(budgetAmount) };
+
+    const payload = {
+      year: Number(year),
+      month: Number(month),
+      amount: Number(budgetAmount),
+    };
+
     try {
-      await axios.post(`${API_URL}/api/budget/set`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessage("✅ Budget Saved Successfully");
-      handleSearch(); // Refresh numbers
-    } catch (error) { setMessage("❌ Error Saving Budget"); }
+      await axios.post(
+        `${API_URL}/api/budget/set`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setMessage("Budget Saved Successfully!");
+      fetchBudgetStatus();
+
+    } catch (error) {
+      setMessage("Error Saving Budget");
+    }
   };
 
+  /* -------------------- UPDATE BUDGET -------------------- */
   const updateBudget = async () => {
-    const payload = { year: Number(year), month: Number(month), amount: Number(budgetAmount) };
+    const payload = {
+      year: Number(year),
+      month: Number(month),
+      amount: Number(budgetAmount),
+    };
+
     try {
-      await axios.put(`${API_URL}/api/budget/update`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setMessage("✅ Budget Updated Successfully");
-      handleSearch();
-    } catch (error) { setMessage("❌ Update Failed"); }
+      await axios.put(
+        `${API_URL}/api/budget/update`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setMessage("Updated Successfully!");
+      fetchBudgetStatus();
+
+    } catch (error) {
+      setMessage("Update Failed");
+    }
   };
 
+  /* -------------------- DELETE BUDGET -------------------- */
   const deleteBudget = async () => {
     try {
-      await axios.delete(`${API_URL}/api/budget/delete`, {
-        params: { year, month },
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessage("✅ Budget Deleted");
+      await axios.delete(
+        `${API_URL}/api/budget/delete`,
+        {
+          params: { year, month },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setMessage("Budget Deleted!");
       setBudgetAmount("");
       setMonthlyExpenses(0);
-    } catch (error) { setMessage("❌ Delete Failed"); }
+
+    } catch (error) {
+      setMessage("Delete Failed!");
+    }
   };
 
   /* -------------------- CALCULATIONS -------------------- */
-  const budgetVal = Number(budgetAmount) || 0;
-  const spentVal = Number(monthlyExpenses) || 0;
-  const remaining = budgetVal - spentVal;
-  const exceeded = budgetVal > 0 && remaining < 0;
+  const remaining = Number(budgetAmount || 0) - Number(monthlyExpenses || 0);
+  const exceeded = remaining < 0;
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Monthly Budget Planner</h2>
 
-      <div style={styles.form}>
-        {/* Step 1: Search Section */}
-        <div style={styles.row}>
-          <input
-            type="number"
-            placeholder="Year"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            style={{ ...styles.input, flex: 1 }}
-          />
-          <input
-            type="number"
-            placeholder="Month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            style={{ ...styles.input, flex: 1 }}
-          />
-        </div>
+      <form onSubmit={saveBudget} style={styles.form}>
+        <input
+          type="number"
+          placeholder="Year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          required
+          style={styles.input}
+        />
 
-        <button type="button" onClick={handleSearch} style={styles.searchButton}>
-          🔍 Check Budget & Expenses
-        </button>
+        <input
+          type="number"
+          placeholder="Month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          required
+          style={styles.input}
+        />
 
-        <hr style={styles.divider} />
-
-        {/* Step 2: Management Section */}
-        <label style={styles.label}>Set/Edit Budget Amount:</label>
         <input
           type="number"
           placeholder="Budget Amount"
           value={budgetAmount}
           onChange={(e) => setBudgetAmount(e.target.value)}
+          required
           style={styles.input}
         />
 
-        <div style={styles.buttonGroup}>
-          <button onClick={saveBudget} style={styles.saveBtn}>Save</button>
-          <button onClick={updateBudget} style={styles.editBtn}>Update</button>
-          <button onClick={deleteBudget} style={styles.deleteBtn}>Delete</button>
-        </div>
-      </div>
+        <button type="submit" style={styles.button}>Save Budget</button>
+
+        <button
+          type="button"
+          style={{ ...styles.button, background: "#f6c23e" }}
+          onClick={updateBudget}
+        >
+          Edit Budget
+        </button>
+
+        <button
+          type="button"
+          style={{ ...styles.button, background: "#e74a3b" }}
+          onClick={deleteBudget}
+        >
+          Delete Budget
+        </button>
+      </form>
 
       {message && <p style={styles.message}>{message}</p>}
 
       <div style={styles.summaryBox}>
-        <h3>Summary for {month}/{year}</h3>
-        <p><strong>Total Budget:</strong> ₹{budgetVal}</p>
-        <p><strong>Spent:</strong> ₹{spentVal}</p>
+        <h3>Monthly Summary</h3>
+        <p><strong>Spent:</strong> ₹{monthlyExpenses}</p>
         <p>
           <strong>Remaining:</strong>{" "}
-          <span style={{ color: exceeded ? "red" : "green", fontWeight: "bold" }}>
+          <span style={{ color: exceeded ? "red" : "green" }}>
             ₹{remaining}
           </span>
         </p>
