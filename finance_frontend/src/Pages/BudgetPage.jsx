@@ -13,7 +13,6 @@ function BudgetPage() {
 
   useEffect(() => {
     if (year && month) {
-      fetchMonthlyExpense();
       fetchBudgetStatus();
     }
   }, [year, month]);
@@ -41,8 +40,8 @@ function BudgetPage() {
       );
 
       const result = response.data;
-      setBudgetAmount(result.budgetAmount || "");
-      setMonthlyExpenses(result.spent || 0);
+      setBudgetAmount(result.budgetAmount ?? "");
+      setMonthlyExpenses(result.spent ?? 0);
     } catch (error) {
       console.error("Budget Status Error:", error);
     }
