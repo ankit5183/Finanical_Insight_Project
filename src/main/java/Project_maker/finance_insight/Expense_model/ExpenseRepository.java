@@ -3,16 +3,6 @@ package Project_maker.finance_insight.Expense_model;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.time.LocalDate;
-import java.util.List;
-
-package Project_maker.finance_insight.Expense_model;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,7 +11,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     // 1. Basic find by email
     List<Expense> findByUserEmail(String email);
 
-    
+    // 2. Used for date range filtering
     List<Expense> findByUserEmailAndDateBetween(String email, LocalDate startDate, LocalDate endDate);
 
     // 3. Total Monthly Spent (for Budget Status)
