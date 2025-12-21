@@ -61,7 +61,8 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/api/budget/**",
                         "/api/dashboard/**",
-                        "/api/expenses/**"
+                        "/api/expense/**",
+                        "/api/csv/**"
                 ).authenticated()
 
                 // Any other request
