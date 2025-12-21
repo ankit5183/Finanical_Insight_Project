@@ -1,9 +1,9 @@
 package Project_maker.finance_insight.Budget_model;
 
-import Project_maker.finance_insight.Authorisation.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -12,24 +12,18 @@ import java.util.Map;
 public class BudgetController {
 
     private final BudgetService budgetService;
-    private final JwtService jwtService;
 
-    public BudgetController(BudgetService budgetService, JwtService jwtService) {
+    public BudgetController(BudgetService budgetService) {
         this.budgetService = budgetService;
-        this.jwtService = jwtService;
-    }
-
-    private String extractEmail(String token) {
-        return jwtService.extractEmail(token.replace("Bearer ", ""));
     }
 
     // ------------------- SAVE BUDGET --------------------
     @PostMapping("/set")
     public ResponseEntity<?> setBudget(
-            @RequestHeader("Authorization") String token,
+            Principal principal,
             @RequestBody BudgetRequest requestBody) {
 
-        String email = extractEmail(token);
+        String email = principal.getName();
 
         budgetService.setMonthlyBudget(
                 email,
@@ -44,11 +38,11 @@ public class BudgetController {
     // ------------------- GET STATUS ---------------------
     @GetMapping("/status")
     public ResponseEntity<?> getStatus(
-            @RequestHeader("Authorization") String token,
+            Principal principal,
             @RequestParam int year,
             @RequestParam int month) {
 
-        String email = extractEmail(token);
+        String email = principal.getName();
 
         double spent = budgetService.getMonthlySpent(email, year, month);
         double budget = budgetService.getBudget(email, year, month);
@@ -63,10 +57,10 @@ public class BudgetController {
     // ------------------- UPDATE BUDGET ------------------
     @PutMapping("/update")
     public ResponseEntity<?> updateBudget(
-            @RequestHeader("Authorization") String token,
+            Principal principal,
             @RequestBody BudgetRequest requestBody) {
 
-        String email = extractEmail(token);
+        String email = principal.getName();
 
         budgetService.updateMonthlyBudget(
                 email,
@@ -80,15 +74,15 @@ public class BudgetController {
 
     // ------------------- CURRENT MONTH ------------------
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentMonthBudget(
-            @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getCurrentMonthBudget(Principal principal) {
 
-        String email = extractEmail(token);
+        String email = principal.getName();
         LocalDate today = LocalDate.now();
 
         double totalBudget = budgetService.getBudget(
                 email, today.getYear(), today.getMonthValue()
         );
+
         double totalSpent = budgetService.getMonthlySpent(
                 email, today.getYear(), today.getMonthValue()
         );
@@ -103,11 +97,11 @@ public class BudgetController {
     // ------------------- DELETE BUDGET ------------------
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteBudget(
-            @RequestHeader("Authorization") String token,
+            Principal principal,
             @RequestParam int year,
             @RequestParam int month) {
 
-        String email = extractEmail(token);
+        String email = principal.getName();
 
         budgetService.deleteBudget(email, year, month);
 
