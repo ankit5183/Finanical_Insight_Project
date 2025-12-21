@@ -4,7 +4,7 @@ import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
-  Legend
+  Legend,
 } from "chart.js";
 import axios from "axios";
 import { API_URL } from "../Config";
@@ -15,73 +15,76 @@ function Dashboard() {
   const [categoryData, setCategoryData] = useState({});
   const [totalExpense, setTotalExpense] = useState(0);
 
-  // ⭐ Current Month Budget Data
   const [budgetStatus, setBudgetStatus] = useState({
     totalBudget: 0,
     totalSpent: 0,
-    remaining: 0
+    remaining: 0,
   });
 
   const token = localStorage.getItem("token");
 
+  /* -------------------- INITIAL LOAD -------------------- */
   useEffect(() => {
     if (!token) return;
 
     fetchCategorySummary();
     fetchTotalExpense();
-    fetchCurrentMonthBudget();  // ⭐ Correct API call
-  }, []);
+    fetchCurrentMonthBudget();
+  }, [token]);
 
-  // ⭐ Fetch CURRENT MONTH Budget Status
+  /* -------------------- CURRENT MONTH BUDGET -------------------- */
   const fetchCurrentMonthBudget = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/budget/current`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const data = response.data;
+      const response = await axios.get(
+        `${API_URL}/api/budget/current`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setBudgetStatus({
-        totalBudget: data.totalBudget,
-        totalSpent: data.totalSpent,
-        remaining: data.remaining
+        totalBudget: Number(response.data.totalBudget || 0),
+        totalSpent: Number(response.data.totalSpent || 0),
+        remaining: Number(response.data.remaining || 0),
       });
 
     } catch (error) {
-      console.error("Budget Status Error:", error);
+      console.error(
+        "Current Budget Error:",
+        error.response?.status,
+        error.response?.data
+      );
     }
   };
 
-  // Fetch Category Summary
+  /* -------------------- CATEGORY SUMMARY -------------------- */
   const fetchCategorySummary = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/dashboard/category-summary`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const data = response.data;
+      const response = await axios.get(
+        `${API_URL}/api/dashboard/category-summary`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       const formatted = {};
-      data.forEach(([category, amount]) => {
+      response.data.forEach(([category, amount]) => {
         formatted[category] = amount;
       });
 
       setCategoryData(formatted);
-
     } catch (error) {
       console.error("Category Summary Error:", error);
     }
   };
 
-  // Total Expense
+  /* -------------------- TOTAL EXPENSE -------------------- */
   const fetchTotalExpense = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/dashboard/total-expense`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(
+        `${API_URL}/api/dashboard/total-expense`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      setTotalExpense(response.data);
-
+      setTotalExpense(Number(response.data || 0));
     } catch (error) {
       console.error("Total Expense Error:", error);
     }
@@ -98,31 +101,36 @@ function Dashboard() {
           "#36b9cc",
           "#f6c23e",
           "#e74a3b",
-          "#858796"
-        ]
-      }
-    ]
+          "#858796",
+        ],
+      },
+    ],
   };
 
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Dashboard</h1>
 
-      {/* ⭐ Current Month Budget Card */}
+      {/* ⭐ CURRENT MONTH BUDGET */}
       <div style={styles.card}>
         <h2 style={{ color: "#4e73df" }}>Current Month Budget</h2>
         <p><strong>Total Budget:</strong> ₹ {budgetStatus.totalBudget}</p>
         <p><strong>Spent:</strong> ₹ {budgetStatus.totalSpent}</p>
-        <p><strong>Remaining:</strong> ₹ {budgetStatus.remaining}</p>
+        <p>
+          <strong>Remaining:</strong>{" "}
+          <span style={{ color: budgetStatus.remaining < 0 ? "red" : "green" }}>
+            ₹ {budgetStatus.remaining}
+          </span>
+        </p>
       </div>
 
-      {/* Total Expense */}
+      {/* TOTAL EXPENSE */}
       <div style={styles.card}>
         <h2>Total Expense</h2>
         <p style={styles.total}>₹ {totalExpense.toFixed(2)}</p>
       </div>
 
-      {/* Category Pie Chart */}
+      {/* CATEGORY PIE */}
       <div style={styles.card}>
         <h2>Category Wise Expense</h2>
         {Object.keys(categoryData).length > 0 ? (
@@ -135,7 +143,9 @@ function Dashboard() {
   );
 }
 
-// Styles
+export default Dashboard;
+
+/* -------------------- STYLES -------------------- */
 const styles = {
   container: {
     padding: "40px",
@@ -161,7 +171,5 @@ const styles = {
     fontWeight: "bold",
     marginTop: "10px",
     color: "#1cc88a",
-  }
+  },
 };
-
-export default Dashboard;
