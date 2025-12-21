@@ -17,25 +17,25 @@ public class BudgetController {
         this.budgetService = budgetService;
     }
 
-    // ------------------- SAVE BUDGET --------------------
+    // ------------------- SAVE -------------------
     @PostMapping("/set")
     public ResponseEntity<?> setBudget(
             Principal principal,
-            @RequestBody BudgetRequest requestBody) {
+            @RequestBody BudgetRequest request) {
 
         String email = principal.getName();
 
         budgetService.setMonthlyBudget(
                 email,
-                requestBody.getYear(),
-                requestBody.getMonth(),
-                requestBody.getAmount()
+                request.getYear(),
+                request.getMonth(),
+                request.getAmount()
         );
 
         return ResponseEntity.ok(Map.of("message", "Budget Saved Successfully"));
     }
 
-    // ------------------- GET STATUS ---------------------
+    // ------------------- STATUS -------------------
     @GetMapping("/status")
     public ResponseEntity<?> getStatus(
             Principal principal,
@@ -54,57 +54,47 @@ public class BudgetController {
         ));
     }
 
-    // ------------------- UPDATE BUDGET ------------------
-    @PutMapping("/update")
-    public ResponseEntity<?> updateBudget(
-            Principal principal,
-            @RequestBody BudgetRequest requestBody) {
-
-        String email = principal.getName();
-
-        budgetService.updateMonthlyBudget(
-                email,
-                requestBody.getYear(),
-                requestBody.getMonth(),
-                requestBody.getAmount()
-        );
-
-        return ResponseEntity.ok(Map.of("message", "Budget Updated Successfully"));
-    }
-
-    // ------------------- CURRENT MONTH ------------------
+    // ------------------- CURRENT -------------------
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentMonthBudget(Principal principal) {
+    public ResponseEntity<?> currentMonth(Principal principal) {
 
         String email = principal.getName();
         LocalDate today = LocalDate.now();
 
-        double totalBudget = budgetService.getBudget(
-                email, today.getYear(), today.getMonthValue()
-        );
-
-        double totalSpent = budgetService.getMonthlySpent(
-                email, today.getYear(), today.getMonthValue()
-        );
+        double budget = budgetService.getBudget(email, today.getYear(), today.getMonthValue());
+        double spent = budgetService.getMonthlySpent(email, today.getYear(), today.getMonthValue());
 
         return ResponseEntity.ok(Map.of(
-                "totalBudget", totalBudget,
-                "totalSpent", totalSpent,
-                "remaining", totalBudget - totalSpent
+                "totalBudget", budget,
+                "totalSpent", spent,
+                "remaining", budget - spent
         ));
     }
 
-    // ------------------- DELETE BUDGET ------------------
+    // ------------------- UPDATE -------------------
+    @PutMapping("/update")
+    public ResponseEntity<?> update(
+            Principal principal,
+            @RequestBody BudgetRequest request) {
+
+        budgetService.updateMonthlyBudget(
+                principal.getName(),
+                request.getYear(),
+                request.getMonth(),
+                request.getAmount()
+        );
+
+        return ResponseEntity.ok(Map.of("message", "Updated Successfully"));
+    }
+
+    // ------------------- DELETE -------------------
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteBudget(
+    public ResponseEntity<?> delete(
             Principal principal,
             @RequestParam int year,
             @RequestParam int month) {
 
-        String email = principal.getName();
-
-        budgetService.deleteBudget(email, year, month);
-
-        return ResponseEntity.ok(Map.of("message", "Budget Deleted Successfully"));
+        budgetService.deleteBudget(principal.getName(), year, month);
+        return ResponseEntity.ok(Map.of("message", "Deleted Successfully"));
     }
 }
