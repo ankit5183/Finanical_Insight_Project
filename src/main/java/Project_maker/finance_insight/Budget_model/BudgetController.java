@@ -49,7 +49,7 @@ public class BudgetController {
 
         return ResponseEntity.ok(Map.of(
                 "spent", spent,
-                "totalBudget", budget,
+                "totalAmount", budget,
                 "remaining", budget - spent
         ));
     }
@@ -65,7 +65,7 @@ public class BudgetController {
         double spent = budgetService.getMonthlySpent(email, today.getYear(), today.getMonthValue());
 
         return ResponseEntity.ok(Map.of(
-                "totalBudget", budget,
+                "totalAmount", budget,
                 "totalSpent", spent,
                 "remaining", budget - spent
         ));
