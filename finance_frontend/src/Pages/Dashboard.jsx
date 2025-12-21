@@ -21,6 +21,8 @@ function Dashboard() {
     remaining: 0,
   });
 
+  const [hasBudget, setHasBudget] = useState(false);
+
   const token = localStorage.getItem("token");
 
   /* -------------------- INITIAL LOAD -------------------- */
@@ -42,11 +44,18 @@ function Dashboard() {
         }
       );
 
+      const totalBudget = Number(response.data.totalBudget || 0);
+      const totalSpent = Number(response.data.totalSpent || 0);
+      const remaining = Number(response.data.remaining || 0);
+
       setBudgetStatus({
-        totalBudget: Number(response.data.totalBudget || 0),
-        totalSpent: Number(response.data.totalSpent || 0),
-        remaining: Number(response.data.remaining || 0),
+        totalBudget,
+        totalSpent,
+        remaining,
       });
+
+      // 🔥 show budget section only if budget exists
+      setHasBudget(totalBudget > 0);
 
     } catch (error) {
       console.error(
@@ -111,18 +120,30 @@ function Dashboard() {
     <div style={styles.container}>
       <h1 style={styles.title}>Dashboard</h1>
 
-      {/* ⭐ CURRENT MONTH BUDGET */}
-      <div style={styles.card}>
-        <h2 style={{ color: "#4e73df" }}>Current Month Budget</h2>
-        <p><strong>Total Budget:</strong> ₹ {budgetStatus.totalBudget}</p>
-        <p><strong>Spent:</strong> ₹ {budgetStatus.totalSpent}</p>
-        <p>
-          <strong>Remaining:</strong>{" "}
-          <span style={{ color: budgetStatus.remaining < 0 ? "red" : "green" }}>
-            ₹ {budgetStatus.remaining}
-          </span>
-        </p>
-      </div>
+     {/* ⭐ CURRENT MONTH BUDGET */}
+<div style={styles.card}>
+  <h2 style={{ color: "#4e73df" }}>Current Month Budget</h2>
+
+  <p><strong>Total Budget:</strong> ₹ {budgetStatus.totalBudget}</p>
+  <p><strong>Spent:</strong> ₹ {budgetStatus.totalSpent}</p>
+  <p>
+    <strong>Remaining:</strong>{" "}
+    <span
+      style={{
+        color: budgetStatus.remaining < 0 ? "red" : "green",
+      }}
+    >
+      ₹ {budgetStatus.remaining}
+    </span>
+  </p>
+
+  {/* ⚠️ INFO MESSAGE */}
+  {budgetStatus.totalBudget === 0 && (
+    <p style={{ color: "#e74a3b", marginTop: "10px" }}>
+      ⚠️ Budget is not set for the current month
+    </p>
+  )}
+</div>
 
       {/* TOTAL EXPENSE */}
       <div style={styles.card}>
