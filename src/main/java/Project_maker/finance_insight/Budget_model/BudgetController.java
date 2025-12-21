@@ -49,7 +49,7 @@ public class BudgetController {
 
         return ResponseEntity.ok(Map.of(
                 "spent", spent,
-                "budgetAmount", budget,
+                "totalBudget", budget,
                 "remaining", budget - spent
         ));
     }
