@@ -123,10 +123,12 @@ function BudgetPage() {
   };
 
   /* -------------------- CALCULATIONS -------------------- */
-  const remaining =
-    Number(budgetAmount || 0) - Number(monthlyExpenses || 0);
+   const budgetVal = Number(budgetAmount) || 0;
+  const spentVal = Number(monthlyExpenses) || 0;
+  const remaining = budgetVal - spentVal;
 
-  const exceeded = remaining < 0;
+// Only show "Exceeded" if a budget actually exists
+  const exceeded = budgetVal > 0 && remaining < 0;
 
   /* -------------------- UI -------------------- */
   return (
