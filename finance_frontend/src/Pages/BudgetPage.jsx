@@ -46,28 +46,34 @@ function BudgetPage() {
   };
 
   /* -------------------- FETCH BUDGET STATUS -------------------- */
-  const fetchBudgetStatus = async () => {
+ const fetchBudgetStatus = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/budget/status`, {
         params: { year, month },
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Update budgetAmount. 
-      // DO NOT overwrite monthlyExpenses here if the backend 'spent' is 0 but your local calculation found expenses.
-      if (response.data.budgetAmount !== undefined) {
-        setBudgetAmount(response.data.budgetAmount);
+      // ✅ These keys now match your updated Java Controller
+      const backendBudget = response.data.budgetAmount;
+      const backendSpent = response.data.spent;
+
+      // Update budgetAmount if it exists in the database
+      if (backendBudget !== undefined) {
+        setBudgetAmount(backendBudget);
+      } else {
+        setBudgetAmount(""); // Clear if no budget record exists for this month
       }
       
-      // Use the backend 'spent' only if it's more reliable than the local calculation
-      if (response.data.spent > 0) {
-        setMonthlyExpenses(response.data.spent);
+      // Update monthlyExpenses from the budget status
+      if (backendSpent !== undefined) {
+        setMonthlyExpenses(backendSpent);
       }
     } catch (error) {
       console.error("Budget Status Error:", error);
+      // Reset if the API fails (e.g., 404 No Budget Found)
+      setBudgetAmount("");
     }
   };
-
   /* -------------------- SAVE BUDGET -------------------- */
   const saveBudget = async (e) => {
     e.preventDefault();
