@@ -33,31 +33,32 @@ function Dashboard() {
   }, [token]);
 
   /* -------------------- CURRENT MONTH BUDGET -------------------- */
-  const fetchCurrentMonthBudget = async () => {
-    try {
-      const response = await axios.get(
-        `${API_URL}/api/budget/current`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+const fetchCurrentMonthBudget = async () => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/api/budget/current`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const budgetValue = Number(response.data.budgetAmount || 0);
+    const spentValue = Number(response.data.totalSpent || 0);
+    const remainingValue = Number(response.data.remaining || 0);
 
-      const totalBudget = Number(response.data.totalBudget || 0);
-      const totalSpent = Number(response.data.totalSpent || 0);
-      const remaining = Number(response.data.remaining || 0);
-
-      // 🔥 If no budget exists, we force the values to 0 for display
-      if (totalBudget === 0) {
-        setBudgetStatus({ totalBudget: 0, totalSpent: 0, remaining: 0 });
-        setHasBudget(false);
-      } else {
-        setBudgetStatus({ totalBudget, totalSpent, remaining });
-        setHasBudget(true);
-      }
-
-    } catch (error) {
-      console.error("Current Budget Error:", error);
+    if (budgetValue === 0) {
+      setBudgetStatus({ totalBudget: 0, totalSpent: 0, remaining: 0 });
+      setHasBudget(false);
+    } else {
+      setBudgetStatus({ 
+        totalBudget: budgetValue, 
+        totalSpent: spentValue, 
+        remaining: remainingValue 
+      });
+      setHasBudget(true);
     }
-  };
 
+  } catch (error) {
+    console.error("Current Budget Error:", error);
+  }
+};
   /* -------------------- CATEGORY SUMMARY -------------------- */
   const fetchCategorySummary = async () => {
     try {
