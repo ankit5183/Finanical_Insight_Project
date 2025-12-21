@@ -11,109 +11,124 @@ function BudgetPage() {
 
   const token = localStorage.getItem("token");
 
+  /* -------------------- SET CURRENT MONTH ON LOAD -------------------- */
+  useEffect(() => {
+    const now = new Date();
+    setYear(now.getFullYear());
+    setMonth(now.getMonth() + 1);
+  }, []);
+
+  /* -------------------- FETCH BUDGET STATUS -------------------- */
   useEffect(() => {
     if (year && month) {
       fetchBudgetStatus();
     }
   }, [year, month]);
 
-  const fetchMonthlyExpense = async () => {
-    try {
-      const response = await axios.get(
-        `${API_URL}/api/expense/monthly?year=${year}&month=${month}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const data = response.data;
-      const total = data.reduce((sum, e) => sum + e.amount, 0);
-      setMonthlyExpenses(total);
-    } catch (error) {
-      console.error("Expense Error:", error);
-    }
-  };
-
   const fetchBudgetStatus = async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/api/budget/status?year=${year}&month=${month}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API_URL}/api/budget/status`,
+        {
+          params: { year, month },
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      const result = response.data;
-      setBudgetAmount(result.budgetAmount ?? "");
-      setMonthlyExpenses(result.spent ?? 0);
+      setBudgetAmount(response.data.budgetAmount ?? "");
+      setMonthlyExpenses(response.data.spent ?? 0);
+
     } catch (error) {
-      console.error("Budget Status Error:", error);
+      console.error(
+        "Budget Status Error:",
+        error.response?.status,
+        error.response?.data
+      );
     }
   };
 
+  /* -------------------- SAVE BUDGET -------------------- */
   const saveBudget = async (e) => {
     e.preventDefault();
 
     const payload = {
-      year: parseInt(year),
-      month: parseInt(month),
-      amount: parseFloat(budgetAmount),
+      year: Number(year),
+      month: Number(month),
+      amount: Number(budgetAmount),
     };
 
     try {
       await axios.post(`${API_URL}/api/budget/set`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setMessage("Budget Saved Successfully!");
-      await fetchBudgetStatus();
-    } catch (error) {
-      setMessage("Error Saving Budget");
-    }
-  };
-
-  const updateBudget = async () => {
-    const payload = {
-      year: parseInt(year),
-      month: parseInt(month),
-      amount: parseFloat(budgetAmount),
-    };
-
-    try {
-      const response = await axios.put(`${API_URL}/api/budget/update`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setMessage(response.status === 200 ? "Updated Successfully!" : "Update Failed");
+      setMessage("✅ Budget Saved Successfully");
+      fetchBudgetStatus();
 
-      if (response.status === 200) {
-        fetchBudgetStatus();
-      }
     } catch (error) {
-      setMessage("Update Failed");
+      setMessage("❌ Error Saving Budget");
     }
   };
 
-  const deleteBudget = async () => {
+  /* -------------------- UPDATE BUDGET -------------------- */
+  const updateBudget = async () => {
+    const payload = {
+      year: Number(year),
+      month: Number(month),
+      amount: Number(budgetAmount),
+    };
+
     try {
-      const response = await axios.delete(
-        `${API_URL}/api/budget/delete?year=${year}&month=${month}`,
+      const response = await axios.put(
+        `${API_URL}/api/budget/update`,
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.status === 200) {
-        setMessage("Budget Deleted!");
-        setBudgetAmount("");
-        setMonthlyExpenses(0);
-      } else {
-        setMessage("Delete Failed!");
-      }
+      setMessage(
+        response.status === 200
+          ? "✅ Budget Updated Successfully"
+          : "❌ Update Failed"
+      );
+
+      if (response.status === 200) fetchBudgetStatus();
+
     } catch (error) {
-      setMessage("Delete Failed!");
+      setMessage("❌ Update Failed");
     }
   };
 
-  const remaining = budgetAmount - monthlyExpenses;
+  /* -------------------- DELETE BUDGET -------------------- */
+  const deleteBudget = async () => {
+    try {
+      const response = await axios.delete(
+        `${API_URL}/api/budget/delete`,
+        {
+          params: { year, month },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        setMessage("✅ Budget Deleted");
+        setBudgetAmount("");
+        setMonthlyExpenses(0);
+      } else {
+        setMessage("❌ Delete Failed");
+      }
+
+    } catch (error) {
+      setMessage("❌ Delete Failed");
+    }
+  };
+
+  /* -------------------- CALCULATIONS -------------------- */
+  const remaining =
+    Number(budgetAmount || 0) - Number(monthlyExpenses || 0);
+
   const exceeded = remaining < 0;
 
+  /* -------------------- UI -------------------- */
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Monthly Budget Planner</h2>
@@ -171,14 +186,21 @@ function BudgetPage() {
 
       <div style={styles.summaryBox}>
         <h3>Monthly Summary</h3>
+
         <p>
           <strong>Spent:</strong> ₹{monthlyExpenses}
         </p>
+
         <p>
           <strong>Remaining:</strong>{" "}
-          <span style={{ color: exceeded ? "red" : "green" }}>₹{remaining}</span>
+          <span style={{ color: exceeded ? "red" : "green" }}>
+            ₹{remaining}
+          </span>
         </p>
-        {exceeded && <p style={styles.exceedText}>⚠️ Budget Exceeded!</p>}
+
+        {exceeded && (
+          <p style={styles.exceedText}>⚠️ Budget Exceeded!</p>
+        )}
       </div>
     </div>
   );
@@ -186,7 +208,7 @@ function BudgetPage() {
 
 export default BudgetPage;
 
-// ----------------------- STYLES -----------------------
+/* -------------------- STYLES -------------------- */
 const styles = {
   container: {
     maxWidth: "600px",
@@ -217,14 +239,13 @@ const styles = {
     background: "#36b9cc",
     color: "white",
     borderRadius: "6px",
-    fontSize: "18px",
+    fontSize: "16px",
     border: "none",
     cursor: "pointer",
   },
   message: {
-    marginTop: "10px",
+    marginTop: "12px",
     textAlign: "center",
-    color: "#1cc88a",
     fontWeight: "bold",
   },
   summaryBox: {
@@ -236,6 +257,6 @@ const styles = {
   exceedText: {
     color: "red",
     fontWeight: "bold",
-    marginTop: "10px",
+    marginTop: "8px",
   },
 };
