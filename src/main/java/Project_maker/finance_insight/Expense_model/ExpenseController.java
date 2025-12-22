@@ -91,4 +91,16 @@ public class ExpenseController {
 
         return service.getCategorySummary(extractEmail(token));
     }
+      @DeleteMapping("/bulk-delete")
+    public ResponseEntity<?> deleteMultipleExpenses(
+            @RequestBody List<Long> expenseIds,
+            Principal principal) {
+
+        expenseService.deleteMultipleExpenses(
+                principal.getName(),
+                expenseIds
+        );
+
+        return ResponseEntity.ok("Expenses deleted successfully");
+    }
 }
