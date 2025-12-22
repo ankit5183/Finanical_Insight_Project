@@ -1,4 +1,4 @@
-# Finance Insight – Personal Expense & Budget Tracker [Open](https://finanical-insight-project.onrender.com)
+# Finance Insight – Personal Expense & Budget Tracker ### <small> [Open](https://finanical-insight-project.onrender.com) </small>
 Finance Insight is a full-stack personal finance management application that helps users track daily, weekly, and monthly expenses, manage monthly budgets, and visualize spending patterns through a dashboard.
 
 # 🚀 Features
