@@ -10,7 +10,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     // 1. Basic find by email
     List<Expense> findByUserEmail(String email);
-
+     
+    void deleteByIdInAndUserEmail(List<Long> ids, String userEmail);
     // 2. Used for date range filtering
     List<Expense> findByUserEmailAndDateBetween(String email, LocalDate startDate, LocalDate endDate);
 
