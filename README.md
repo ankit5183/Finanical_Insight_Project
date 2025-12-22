@@ -56,8 +56,10 @@ Finance Insight is a full-stack personal finance management application that hel
  # 👨‍💻 Author
  # <Sub> Ankit Kumar <sub/>
  <small> Aspiring Software Engineer <small/>
+ 
  📌 Java | Spring Boot | React | Python | AWS | SQL
  [Github](https://github.com/ankit5183)  
+ 
  [Linkedin](www.linkedin.com/in/ankit-kumar-52830922a)
   
 
