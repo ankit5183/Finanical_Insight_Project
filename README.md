@@ -29,17 +29,17 @@ Finance Insight is a full-stack personal finance management application that hel
 | Chart.js | | Spring Security (JWT) | | |
 | HTML5, CSS3 | | Spring Data JPA | | |
 # 🔗 API Highlights
-# <sub> 1. Expense APIs
+# <sub> 1. Expense APIs <sub/>
 * POST /api/expense/add
 * GET /api/expense/monthly
 * GET /api/expense/weekly
 * DELETE /api/expense/delete-multiple
-# <sub> 2. Budget APIs
+# <sub> 2. Budget APIs <sub/>
 * POST /api/budget/set
 * GET /api/budget/status
 * PUT /api/budget/update
 * DELETE /api/budget/delete
-# <sub> 3. CSV_Upload
+# <sub> 3. CSV_Upload <sub/>
 * POST /api/csv/upload
 # 🧠 Key Learning Outcomes
 * JWT authentication & authorization
@@ -55,8 +55,10 @@ Finance Insight is a full-stack personal finance management application that hel
 
  # 👨‍💻 Author
  # <Sub> Ankit Kumar <sub/>
-  <small> Aspiring Software Engineer <small/>
-  📌 Java | Spring Boot | React | SQL
+ <small> Aspiring Software Engineer <small/>
+ 📌 Java | Spring Boot | React | Python | AWS | SQL
+ [Github](https://github.com/ankit5183)  
+ [Linkedin](www.linkedin.com/in/ankit-kumar-52830922a)
   
 
 
