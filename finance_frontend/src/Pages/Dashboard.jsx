@@ -39,8 +39,8 @@ const fetchCurrentMonthBudget = async () => {
       `${API_URL}/api/budget/current`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    const budgetValue = Number(response.data.budgetAmount || 0);
-    const spentValue = Number(response.data.totalSpent || 0);
+    const budgetValue = Number(response.data.totalAmount || 0);
+    const spentValue = Number(response.data.totalSpent || response.data.spent || 0);
     const remainingValue = Number(response.data.remaining || 0);
 
     if (budgetValue === 0) {
