@@ -28,6 +28,18 @@ Finance Insight is a full-stack personal finance management application that hel
 | Axios | | Spring Boot | | PostgreSQL / MySQL |
 | Chart.js | | Spring Security (JWT) | | |
 | HTML5, CSS3 | | Spring Data JPA | | |
+# 🔗 API Highlights
+# <sub> 1. Expense APIs
+* POST /api/expense/add
+* GET /api/expense/monthly
+* GET /api/expense/weekly
+* DELETE /api/expense/delete-multiple
+# <sub> 2. Budget APIs
+* POST /api/budget/set
+* GET /api/budget/status
+* PUT /api/budget/update
+* DELETE /api/budget/delete
+
 
 
   
