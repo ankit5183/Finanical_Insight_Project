@@ -52,12 +52,12 @@ Finance Insight is a full-stack personal finance management application that hel
 * Email alerts when budget exceeds
 * Export expenses to Excel/PDF
 * Mobile-responsive UI
-
- # 👨‍💻 Author
- # <Sub> Ankit Kumar <sub/>
- <small> Aspiring Software Engineer <small/>
+# 👨‍💻 Author
+<Sub> Ankit Kumar <sub/>
+<small> Aspiring Software Engineer <small/>
  
- 📌 Java | Spring Boot | React | Python | AWS | SQL
+📌 Java | Spring Boot | React | Python | AWS | SQL
+ 
  [Github](https://github.com/ankit5183)  
  
  [Linkedin](www.linkedin.com/in/ankit-kumar-52830922a)
