@@ -22,12 +22,12 @@ Finance Insight is a full-stack personal finance management application that hel
 * Category-wise pie chart
 * Real-time updates after add/delete actions
 # 🛠️ Tech Stack
-# <sub> 1. Frontend                # <sub> 2.Backend               # <sub> 3. Database
-* React.js                         * Java                          * H2(development)
-* Axios                            * Spring Boot                   * PostgreSQL/MySQL
-* Chart.js                         * Spring Security (JWT)
-* HTML5, CSS3                      * Spring Data JPA 
-
+| 1. Frontend | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 2. Backend | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 3. Database |
+| :--- | :--- | :--- | :--- | :--- |
+| React.js | | Java | | H2 (Development) |
+| Axios | | Spring Boot | | PostgreSQL / MySQL |
+| Chart.js | | Spring Security (JWT) | | |
+| HTML5, CSS3 | | Spring Data JPA | | |
 
 
   
