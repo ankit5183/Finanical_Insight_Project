@@ -64,7 +64,7 @@ function WeeklyExpense() {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.delete(`${API_URL}/api/expense/delete-multiple`, {
+      await axios.delete(`${API_URL}/api/expense/bulk-delete`, {
         headers: { Authorization: "Bearer " + token },
         data: selectedIds,
       });
