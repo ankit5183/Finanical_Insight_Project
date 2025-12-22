@@ -39,6 +39,25 @@ Finance Insight is a full-stack personal finance management application that hel
 * GET /api/budget/status
 * PUT /api/budget/update
 * DELETE /api/budget/delete
+# <sub> 3. CSV_Upload
+* POST /api/csv/upload
+# 🧠 Key Learning Outcomes
+* JWT authentication & authorization
+* RESTful API design
+* Date-based filtering (weekly/monthly)
+* React state management
+* Secure multi-user data handling
+* Full-stack integration & deployment
+# Future Enhancements
+* Email alerts when budget exceeds
+* Export expenses to Excel/PDF
+* Mobile-responsive UI
+
+ # 👨‍💻 Author
+ # <Sub> Ankit Kumar <sub/>
+  <small> Aspiring Software Engineer <small/>
+  📌 Java | Spring Boot | React | SQL
+  
 
 
 
