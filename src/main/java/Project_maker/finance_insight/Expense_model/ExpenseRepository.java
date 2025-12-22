@@ -16,6 +16,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Transactional
     void deleteByIdInAndUserEmail(List<Long> ids, String userEmail);
 
+    @Modifying
+    @Transactional
+    void deleteByIdAndUserEmail(Long id, String email);
+
     List<Expense> findByUserEmailAndDateBetween(String email, LocalDate startDate, LocalDate endDate);
 
     @Query("SELECT COALESCE(SUM(e.amount), 0.0) FROM Expense e " +
