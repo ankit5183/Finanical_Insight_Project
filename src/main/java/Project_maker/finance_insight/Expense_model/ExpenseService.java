@@ -63,13 +63,14 @@ public class ExpenseService {
         }
         return summary;
     }
-         @Transactional
-         public void deleteMultipleExpenses(String email, List<Long> ids) {
-         repo.deleteByIdInAndUserEmail(ids, email);
 
-         @Transactional
-        public void deleteExpense(String email, Long id) {
-           repo.deleteByIdAndUserEmail(id, email);
-}    
-    }
+    @Transactional
+    public void deleteMultipleExpenses(String email, List<Long> ids) {
+        repo.deleteByIdInAndUserEmail(ids, email);
+    } 
+
+    @Transactional
+    public void deleteExpense(String email, Long id) {
+        repo.deleteByIdAndUserEmail(id, email);
+    } 
 }
