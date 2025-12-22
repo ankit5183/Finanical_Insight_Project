@@ -9,12 +9,12 @@ function WeeklyExpense() {
   const [expenses, setExpenses] = useState([]);
   const [total, setTotal] = useState(0);
   const [message, setMessage] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const fetchWeeklyExpenses = async (e) => {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
-
     if (!token) {
       setMessage("Authentication required. Please log in.");
       return;
@@ -24,22 +24,63 @@ function WeeklyExpense() {
 
     try {
       const response = await axios.get(url, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
+        headers: { Authorization: "Bearer " + token },
       });
 
       const data = response.data;
       setExpenses(data);
+      setSelectedIds([]);
       setMessage("");
 
-      // Calculate total
       const totalAmount = data.reduce((sum, exp) => sum + exp.amount, 0);
       setTotal(totalAmount);
 
     } catch (err) {
       setMessage("Server Error! Check API URL or try again.");
       console.error("Weekly Expense Error:", err);
+    }
+  };
+
+  /* ---------------- DELETE HANDLERS ---------------- */
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const selectAll = (e) => {
+    setSelectedIds(
+      e.target.checked ? expenses.map((exp) => exp.id) : []
+    );
+  };
+
+  const deleteSelected = async () => {
+    if (selectedIds.length === 0) {
+      alert("Select at least one expense");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.delete(`${API_URL}/api/expense/delete-multiple`, {
+        headers: { Authorization: "Bearer " + token },
+        data: selectedIds,
+      });
+
+      const remaining = expenses.filter(
+        (exp) => !selectedIds.includes(exp.id)
+      );
+
+      setExpenses(remaining);
+      setSelectedIds([]);
+
+      const newTotal = remaining.reduce((sum, exp) => sum + exp.amount, 0);
+      setTotal(newTotal);
+
+    } catch (error) {
+      alert("Delete failed");
     }
   };
 
@@ -84,10 +125,34 @@ function WeeklyExpense() {
 
       <h3 style={styles.total}>Total Weekly Expense: ₹{total}</h3>
 
+      {/* SELECT ALL + DELETE */}
+      {expenses.length > 0 && (
+        <div style={{ marginTop: "10px" }}>
+          <input
+            type="checkbox"
+            checked={selectedIds.length === expenses.length}
+            onChange={selectAll}
+          />{" "}
+          Select All
+
+          <button
+            onClick={deleteSelected}
+            style={{ ...styles.button, background: "#e74a3b", marginLeft: "15px" }}
+          >
+            Delete Selected
+          </button>
+        </div>
+      )}
+
       <div style={styles.list}>
         {expenses.length > 0 ? (
           expenses.map((exp) => (
             <div key={exp.id} style={styles.card}>
+              <input
+                type="checkbox"
+                checked={selectedIds.includes(exp.id)}
+                onChange={() => toggleSelect(exp.id)}
+              />
               <p><strong>Date:</strong> {exp.date}</p>
               <p><strong>Category:</strong> {exp.category}</p>
               <p><strong>Amount:</strong> ₹{exp.amount}</p>
@@ -102,6 +167,7 @@ function WeeklyExpense() {
 }
 
 export default WeeklyExpense;
+
 
 
 // ---------------------------- STYLES ----------------------------
