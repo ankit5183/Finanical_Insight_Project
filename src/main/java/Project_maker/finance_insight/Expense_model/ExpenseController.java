@@ -19,12 +19,13 @@ public class ExpenseController {
         this.jwtService = jwtService;
     }
 
-    // Extract email from JWT token
+    /* -------------------- JWT EMAIL -------------------- */
     private String extractEmail(String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         return jwtService.extractEmail(token);
     }
 
+    /* -------------------- ADD EXPENSE -------------------- */
     @PostMapping("/add")
     public Expense addExpense(
             @RequestHeader("Authorization") String token,
@@ -35,28 +36,37 @@ public class ExpenseController {
         return service.addExpense(expense);
     }
 
+    /* -------------------- ALL EXPENSE -------------------- */
     @GetMapping("/all")
-    public List<Expense> allExpenses(@RequestHeader("Authorization") String token) {
+    public List<Expense> allExpenses(
+            @RequestHeader("Authorization") String token) {
+
         return service.getExpenses(extractEmail(token));
     }
 
+    /* -------------------- MONTHLY EXPENSE -------------------- */
     @GetMapping("/monthly")
     public List<Expense> monthly(
             @RequestHeader("Authorization") String token,
             @RequestParam int year,
             @RequestParam int month) {
 
-        return service.getMonthlyExpense(extractEmail(token), year, month);
+        return service.getMonthlyExpense(
+                extractEmail(token),
+                year,
+                month
+        );
     }
 
-    // 🔹 NEW TOTAL EXPENSE API
+    /* -------------------- TOTAL EXPENSE -------------------- */
     @GetMapping("/total")
-    public double totalExpense(@RequestHeader("Authorization") String token) {
-        String email = extractEmail(token);
-        return service.getTotalExpense(email);
+    public double totalExpense(
+            @RequestHeader("Authorization") String token) {
+
+        return service.getTotalExpense(extractEmail(token));
     }
 
-    // Weekly Expense
+    /* -------------------- WEEKLY EXPENSE -------------------- */
     @GetMapping("/weekly")
     public List<Expense> weeklyExpense(
             @RequestHeader("Authorization") String token,
@@ -64,13 +74,11 @@ public class ExpenseController {
             @RequestParam int month,
             @RequestParam int day) {
 
-        String email = extractEmail(token);
         LocalDate date = LocalDate.of(year, month, day);
-
-        return service.getWeeklyExpense(email, date);
+        return service.getWeeklyExpense(extractEmail(token), date);
     }
 
-    // Weekly Total
+    /* -------------------- WEEKLY TOTAL -------------------- */
     @GetMapping("/weekly/total")
     public double weeklyTotal(
             @RequestHeader("Authorization") String token,
@@ -78,29 +86,33 @@ public class ExpenseController {
             @RequestParam int month,
             @RequestParam int day) {
 
-        String email = extractEmail(token);
         LocalDate date = LocalDate.of(year, month, day);
-
-        return service.getWeeklyTotal(email, date);
+        return service.getWeeklyTotal(extractEmail(token), date);
     }
 
-    // Category wise summary
+    /* -------------------- CATEGORY SUMMARY -------------------- */
     @GetMapping("/category-summary")
     public Map<String, Double> categorySummary(
             @RequestHeader("Authorization") String token) {
 
         return service.getCategorySummary(extractEmail(token));
     }
-      @DeleteMapping("/bulk-delete")
-    public ResponseEntity<?> deleteMultipleExpenses(
-            @RequestBody List<Long> expenseIds,
-            Principal principal) {
 
-        expenseService.deleteMultipleExpenses(
-                principal.getName(),
-                expenseIds
-        );
+    /* -------------------- SINGLE DELETE -------------------- */
+    @DeleteMapping("/{id}")
+    public void deleteExpense(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long id) {
 
-        return ResponseEntity.ok("Expenses deleted successfully");
+        service.deleteExpense(extractEmail(token), id);
+    }
+
+    /* -------------------- MULTIPLE DELETE -------------------- */
+    @DeleteMapping("/bulk-delete")
+    public void deleteMultipleExpenses(
+            @RequestHeader("Authorization") String token,
+            @RequestBody List<Long> ids) {
+
+        service.deleteMultipleExpenses(extractEmail(token), ids);
     }
 }
