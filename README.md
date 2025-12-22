@@ -21,7 +21,7 @@ Finance Insight is a full-stack personal finance management application that hel
 * Total expenses
 * Category-wise pie chart
 * Real-time updates after add/delete actions
-#🛠️ Tech Stack
+# 🛠️ Tech Stack
 # <sub> 1. Frontend                # <sub> 2.Backend               # <sub> 3. Database
 * React.js                         * Java                          * H2(development)
 * Axios                            * Spring Boot                   * PostgreSQL/MySQL
