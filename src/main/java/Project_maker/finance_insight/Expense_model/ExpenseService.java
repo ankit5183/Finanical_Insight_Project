@@ -1,5 +1,6 @@
 package Project_maker.finance_insight.Expense_model;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ public class ExpenseService {
         }
         return summary;
     }
+         @Transactional
          public void deleteMultipleExpenses(String email, List<Long> ids) {
          repo.deleteByIdInAndUserEmail(ids, email);
     }
