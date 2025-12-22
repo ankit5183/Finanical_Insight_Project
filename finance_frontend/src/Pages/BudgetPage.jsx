@@ -53,8 +53,7 @@ function BudgetPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // ✅ These keys now match your updated Java Controller
-      const backendBudget = response.data.budgetAmount;
+      const backendBudget = response.data.totalAmount;
       const backendSpent = response.data.spent;
 
       // Update budgetAmount if it exists in the database
