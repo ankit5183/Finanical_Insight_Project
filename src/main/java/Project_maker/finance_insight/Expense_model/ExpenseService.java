@@ -62,4 +62,7 @@ public class ExpenseService {
         }
         return summary;
     }
+         public void deleteMultipleExpenses(String email, List<Long> ids) {
+         repo.deleteByIdInAndUserEmail(ids, email);
+    }
 }
