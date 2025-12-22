@@ -2,6 +2,7 @@
 [[open]](https://finanical-insight-project.onrender.com)
 
 Finance Insight is a full-stack personal finance management application that helps users track daily, weekly, and monthly expenses, manage monthly budgets, and visualize spending patterns through a dashboard.
+[[Demo video]](https://drive.google.com/file/d/1DjGY14OzKtq_bo1O8FlePdTPuFbN0G8V/view?usp=sharing)
 
 # 🚀 Features
 # <sub> 1.🔐 Authentication & Security
